@@ -2,7 +2,7 @@
 
 ## Obiettivo
 
-Configurare gli smartphone Android dedicati alle telecamere come dispositivi Android Enterprise fully managed, con l'app Home Security Cam in kiosk mode solo dopo pairing e autorizzazione.
+Configurare gli smartphone Android dedicati alle telecamere come dispositivi Android Enterprise fully managed, con l'app Home Security Cam in kiosk mode dopo il join RTC della telecamera (CAM 1).
 
 ## Vincoli fondamentali
 
@@ -29,11 +29,11 @@ Configurare gli smartphone Android dedicati alle telecamere come dispositivi And
 - **Verifica:** un amministratore autorizzato recupera il dispositivo; un utente normale non può uscire dall'app.
 - **Stato:** scelta uscita kiosk tramite comando backend esclusivo del proprietario, senza PIN o bypass locale. Factory reset fisico è il fallback offline. Dettagli e casi di test in `DEVICE_OWNER_OPERATIONS.md`.
 
-### D0.3 Separare le identità
+### D0.3 Identità locale (modello gratuito)
 
-- Ogni telefono telecamera usa un account Firebase dedicato e pairing code monouso.
-- Il Device Owner non sostituisce autenticazione, token Agora o autorizzazione backend.
-- **Verifica:** un device non abbinato non può ottenere token RTC né entrare in kiosk operativo.
+- Visore e telecamera condividono lo stesso Agora App ID inserito sull'apparecchio.
+- Il Device Owner usa il ruolo CAM 1 e il canale fisso `casa_sicura`.
+- Non c'è account Firebase né codice di pairing.
 
 ## Fase D1 — Base nativa Android Enterprise
 
@@ -86,25 +86,27 @@ Configurare gli smartphone Android dedicati alle telecamere come dispositivi And
 
 ## Fase D3 — Provisioning QR
 
-### D3.1 Preparare artefatto firmato
+### D3.1 Preparare artefatto firmato — COMPLETATO
 
 - Creare APK release firmato da keystore produzione.
 - Calcolare checksum SHA-256 dell'APK.
 - Pubblicare il file su HTTPS diretto e immutabile per versione.
 - **Verifica:** checksum del file scaricato corrisponde a quello inserito nel QR.
+- **Stato:** APK e checksum pubblicati su GitHub Releases `v1.0.1`. SHA-256 hex `9156159d4b7823056afc7816705790dc8bf1904d0f2040f5baae35e2cca6a4cf`. Non riusare `v1.0.0`.
 
-### D3.2 Generare payload QR Android Enterprise
+### D3.2 Generare payload QR Android Enterprise — IMPLEMENTATO, DA TESTARE
 
 - Inserire componente Device Admin, URL APK, checksum e parametri Wi‑Fi solo se indispensabili.
 - Usare `adminExtras` per un codice enrollment monouso, mai per segreti.
 - Limitare scadenza e uso del codice sul backend.
 - **Verifica:** QR prova il provisioning su un device factory-reset e rifiuta codice scaduto/riusato.
+- **Stato:** payload in `device-owner/provisioning-qr.json` con componente DPC, URL APK v1.0.1 e checksum Base64 URL-safe. Nessun segreto nel QR. Da testare su telefono factory-reset.
 
-### D3.3 Onboarding dopo provisioning
+### D3.3 Onboarding dopo provisioning — IMPLEMENTATO, DA TESTARE
 
-- Alla prima apertura, l'app effettua login/pairing Firebase dell'account telecamera.
-- Registra il device nel backend e abilita il kiosk soltanto dopo conferma.
-- **Verifica:** il QR installa l'app ma il video non parte finché pairing e autorizzazione non sono completi.
+- Alla prima apertura il telefono Device Owner chiede l'Agora App ID, poi entra come CAM 1.
+- Il kiosk parte dopo il join RTC della telecamera (solo build release).
+- Un telefono normale (visore) sceglie il ruolo dopo lo stesso App ID.
 
 ## Fase D4 — Operazioni e sicurezza
 

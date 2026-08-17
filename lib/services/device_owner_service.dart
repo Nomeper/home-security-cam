@@ -35,9 +35,19 @@ class DeviceOwnerService {
     return DeviceOwnerStatus.fromMap(result);
   }
 
+  Future<bool> isManagedCamera() async {
+    try {
+      return (await getStatus()).isDeviceOwner;
+    } on MissingPluginException {
+      return false;
+    } on PlatformException {
+      return false;
+    }
+  }
+
   Future<bool> canStartLockTask() async {
     if (kDebugMode) return false;
-    return (await getStatus()).isDeviceOwner;
+    return isManagedCamera();
   }
 
   Future<void> startLockTask() => _channel.invokeMethod('startLockTask');

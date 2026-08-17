@@ -1,5 +1,7 @@
 # Blueprint di correzione — Home Security Cam
 
+> **Modello attuale (gratis):** visore e telecamera usano Agora App ID locale, canale `casa_sicura`, UID fissi e token vuoto. Firebase / Cloud Functions **non** sono in uso: richiedono piano Blaze. Vedi `AGORA_SETUP.md`.
+
 ## Obiettivo
 
 Portare l'app a un livello distribuibile, correggendo prima i rischi di accesso non autorizzato e privacy, poi affidabilità, qualità e manutenzione. Nessuna release deve essere pubblicata prima del completamento delle fasi 0–2.

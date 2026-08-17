@@ -1,9 +1,11 @@
 // lib/utils.dart
 
-// Definizione dei Ruoli
+const String kChannelName = 'casa_sicura';
+const List<int> kCamUids = [10, 20, 30, 40, 50, 60];
+const int kViewerUid = 100;
+
 enum DeviceRole { camera1, camera2, camera3, camera4, camera5, camera6, viewer }
 
-// Helper: Converte stringa salvata in Ruolo
 DeviceRole stringToRole(String? s) {
   if (s == null) return DeviceRole.viewer;
   return DeviceRole.values.firstWhere(
@@ -12,11 +14,15 @@ DeviceRole stringToRole(String? s) {
   );
 }
 
-// Helper: Ottieni nome di default per il ruolo
 String getDefaultNameForRole(DeviceRole role) {
-  if (role == DeviceRole.viewer) return "Visore";
+  if (role == DeviceRole.viewer) return 'Visore';
   int index = DeviceRole.values.indexOf(role) + 1;
-  return "CAM $index";
+  return 'CAM $index';
+}
+
+int getUidFromRole(DeviceRole role) {
+  if (role == DeviceRole.viewer) return kViewerUid;
+  return kCamUids[DeviceRole.values.indexOf(role)];
 }
 
 String normalizeCameraName(String value) =>
@@ -32,4 +38,3 @@ String? validateCameraName(String value) {
   }
   return null;
 }
-

@@ -1,5 +1,4 @@
 // lib/main.dart
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'services/background_video_service.dart';
@@ -8,7 +7,6 @@ import 'splash_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   BackgroundVideoService.initialize();
-  await Firebase.initializeApp();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:home_security_cam/services/rtc_session_service.dart';
+import 'package:home_security_cam/app_launch.dart';
 import 'package:home_security_cam/utils.dart';
 
 void main() {
@@ -13,16 +13,18 @@ void main() {
       expect(stringToRole('invalid-role'), DeviceRole.viewer);
     });
 
-    test('uses predictable display names', () {
-      expect(getDefaultNameForRole(DeviceRole.camera1), 'CAM 1');
-      expect(getDefaultNameForRole(DeviceRole.camera6), 'CAM 6');
-      expect(getDefaultNameForRole(DeviceRole.viewer), 'Visore');
+    test('maps roles to stable UIDs', () {
+      expect(getUidFromRole(DeviceRole.camera1), 10);
+      expect(getUidFromRole(DeviceRole.viewer), 100);
     });
   });
 
   group('Camera name validation', () {
     test('normalizes surrounding and repeated whitespace', () {
-      expect(normalizeCameraName('  Ingresso   principale  '), 'Ingresso principale');
+      expect(
+        normalizeCameraName('  Ingresso   principale  '),
+        'Ingresso principale',
+      );
     });
 
     test('rejects empty, control-character and overlong names', () {
@@ -36,31 +38,37 @@ void main() {
     });
   });
 
-  group('RtcSession', () {
-    test('parses a complete server response', () {
-      final session = RtcSession.fromMap({
-        'appId': 'public-app-id',
-        'channelId': 'home_abc',
-        'expiresAt': 1735689600,
-        'role': 'viewer',
-        'token': 'temporary-token',
-        'uid': 42,
-      });
-
-      expect(session.channelId, 'home_abc');
-      expect(session.role, 'viewer');
-      expect(session.uid, 42);
-      expect(session.expiresAt, DateTime.fromMillisecondsSinceEpoch(1735689600000));
+  group('App launch', () {
+    test('asks for App ID first', () {
+      expect(
+        AppLaunchDecision.decide(
+          hasAppId: false,
+          isDeviceOwner: false,
+          role: null,
+        ),
+        AppLaunchRoute.appId,
+      );
     });
 
-    test('rejects an incomplete server response', () {
+    test('Device Owner skips role selection after App ID', () {
       expect(
-        () => RtcSession.fromMap({
-          'appId': 'public-app-id',
-          'channelId': 'home_abc',
-          'expiresAt': 'not-a-timestamp',
-        }),
-        throwsFormatException,
+        AppLaunchDecision.decide(
+          hasAppId: true,
+          isDeviceOwner: true,
+          role: null,
+        ),
+        AppLaunchRoute.security,
+      );
+    });
+
+    test('viewer phones still choose a role', () {
+      expect(
+        AppLaunchDecision.decide(
+          hasAppId: true,
+          isDeviceOwner: false,
+          role: null,
+        ),
+        AppLaunchRoute.roleSelection,
       );
     });
   });

@@ -5,11 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'services/camera_command_service.dart';
 import 'services/background_video_service.dart';
 import 'services/device_owner_service.dart';
-import 'services/home_access_service.dart';
-import 'services/rtc_session_service.dart';
 import 'utils.dart';
 import 'role_selection_screen.dart';
 
@@ -31,16 +28,13 @@ class _SecurityPageState extends State<SecurityPage>
   bool _isJoined = false;
   bool _isReconnecting = false;
   String? _initializationError;
-  String _channelId = '';
-  String? _homeId;
-  String? _deviceId;
-  StreamSubscription<CameraCommand>? _cameraCommandSubscription;
+  String _channelId = kChannelName;
+  int? _streamId;
   bool _lockTaskStarted = false;
 
   // --- GESTIONE TELECAMERE ---
   final Set<int> _activeCameras = {};
-  final Map<int, String> _cameraDeviceIds = {};
-  int _selectedViewUid = 0;
+  int _selectedViewUid = kCamUids[0];
   final Map<int, String> _cameraNames = {};
 
   // Mappa per la qualità della rete (0: Sconosciuto, 1-2: Ottima, 3: Media, 4-6: Pessima)
@@ -56,12 +50,14 @@ class _SecurityPageState extends State<SecurityPage>
   bool _audioEnabled = false;
 
   bool get isCamera => widget.role != DeviceRole.viewer;
+  int get myUid => getUidFromRole(widget.role);
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WakelockPlus.enable(); // Schermo sempre acceso
+    WakelockPlus.enable();
+    _loadCameraNames();
     _initAgora();
     _resetControlsTimer();
   }
@@ -70,7 +66,6 @@ class _SecurityPageState extends State<SecurityPage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _controlsTimer?.cancel();
-    _cameraCommandSubscription?.cancel();
     if (isCamera) BackgroundVideoService.stop();
     if (_engineCreated) {
       _engine.leaveChannel();
@@ -117,6 +112,17 @@ class _SecurityPageState extends State<SecurityPage>
 
   // --- INIZIALIZZAZIONE ---
 
+  Future<void> _loadCameraNames() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      for (final uid in kCamUids) {
+        _cameraNames[uid] = prefs.getString('cam_name_$uid') ??
+            'CAM ${kCamUids.indexOf(uid) + 1}';
+      }
+    });
+  }
+
   Future<bool> _saveCameraName(int uid, String newName) async {
     final normalizedName = normalizeCameraName(newName);
     final validationError = validateCameraName(normalizedName);
@@ -134,38 +140,21 @@ class _SecurityPageState extends State<SecurityPage>
   Future<void> _initAgora() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final homeId = prefs.getString('home_id');
-      final deviceId = prefs.getString('device_id');
-      if (homeId == null || deviceId == null) {
-        throw StateError('Completa l’abbinamento del dispositivo.');
+      final appId = prefs.getString('agora_app_id');
+      if (appId == null || appId.isEmpty) {
+        throw StateError('Inserisci l’Agora App ID prima di avviare.');
       }
-      final session = await RtcSessionService().createSession(
-        homeId: homeId,
-        deviceId: deviceId,
-        isCamera: isCamera,
-      );
       if (!mounted) return;
-      _homeId = homeId;
-      _deviceId = deviceId;
-      _channelId = session.channelId;
-      if (!isCamera) {
-        final cameras = await HomeAccessService().listCameras(homeId: homeId);
-        if (!mounted) return;
-        for (final camera in cameras) {
-          _cameraDeviceIds[camera.agoraUid] = camera.deviceId;
-          _cameraNames.putIfAbsent(camera.agoraUid, () => camera.deviceId);
-        }
-      }
+      _channelId = kChannelName;
 
       _engine = createAgoraRtcEngine();
       _engineCreated = true;
       await _engine.initialize(RtcEngineContext(
-        appId: session.appId,
+        appId: appId,
         channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
       ));
       if (!mounted) return;
 
-      // --- EVENT HANDLERS ---
       _engine.registerEventHandler(
         RtcEngineEventHandler(
           onJoinChannelSuccess: (connection, elapsed) {
@@ -174,8 +163,8 @@ class _SecurityPageState extends State<SecurityPage>
               _isJoined = true;
               _isReconnecting = false;
             });
+            _createDataStream();
             if (isCamera) {
-              _startCameraCommandListener();
               BackgroundVideoService.start();
               _startKioskForPairedCamera();
             }
@@ -185,10 +174,11 @@ class _SecurityPageState extends State<SecurityPage>
           },
           onUserJoined: (connection, remoteUid, elapsed) {
             if (!mounted) return;
+            if (!kCamUids.contains(remoteUid)) return;
             setState(() {
               _activeCameras.add(remoteUid);
-              _cameraNames.putIfAbsent(remoteUid, () => 'CAM $remoteUid');
-              if (_activeCameras.length == 1) {
+              if (_activeCameras.length == 1 &&
+                  !_activeCameras.contains(_selectedViewUid)) {
                 _selectedViewUid = remoteUid;
               }
             });
@@ -197,7 +187,7 @@ class _SecurityPageState extends State<SecurityPage>
             if (!mounted) return;
             setState(() {
               _activeCameras.remove(remoteUid);
-              _networkQuality.remove(remoteUid); // Rimuovi dati qualità
+              _networkQuality.remove(remoteUid);
               if (_selectedViewUid == remoteUid && _activeCameras.isNotEmpty) {
                 _selectedViewUid = _activeCameras.first;
               }
@@ -211,12 +201,16 @@ class _SecurityPageState extends State<SecurityPage>
               setState(() => _isReconnecting = false);
             }
           },
-          // Monitoraggio Qualità Rete
           onNetworkQuality: (connection, remoteUid, txQuality, rxQuality) {
-            if (remoteUid == 0) return; // Ignora qualità locale qui
+            if (remoteUid == 0) return;
             if (mounted) {
               setState(() => _networkQuality[remoteUid] = rxQuality.value());
             }
+          },
+          onStreamMessage:
+              (connection, remoteUid, streamId, data, length, sentTs) {
+            final message = String.fromCharCodes(data);
+            if (isCamera && message == 'FLASH') _toggleLocalFlash();
           },
         ),
       );
@@ -249,9 +243,9 @@ class _SecurityPageState extends State<SecurityPage>
       }
 
       await _engine.joinChannel(
-        token: session.token,
-        channelId: session.channelId,
-        uid: session.uid,
+        token: '',
+        channelId: kChannelName,
+        uid: myUid,
         options: ChannelMediaOptions(
           publishCameraTrack: isCamera,
           publishMicrophoneTrack: false,
@@ -271,7 +265,7 @@ class _SecurityPageState extends State<SecurityPage>
         _isReady = false;
         _initializationError = e is StateError
             ? e.message.toString()
-            : 'Impossibile avviare la telecamera. Verifica rete, pairing e autorizzazioni.';
+            : 'Impossibile avviare. Verifica App ID, rete e progetto Agora senza token.';
       });
     }
   }
@@ -332,31 +326,26 @@ class _SecurityPageState extends State<SecurityPage>
     }
   }
 
+  Future<void> _createDataStream() async {
+    _streamId = await _engine.createDataStream(
+      const DataStreamConfig(syncWithAudio: false, ordered: true),
+    );
+  }
+
   Future<void> _sendRemoteFlash() async {
-    final homeId = _homeId;
-    final deviceId = _cameraDeviceIds[_selectedViewUid];
-    if (homeId == null || deviceId == null) return;
+    if (_streamId == null) return;
     try {
-      await CameraCommandService().sendTorch(
-        homeId: homeId,
-        deviceId: deviceId,
-        desiredState: true,
+      final data = Uint8List.fromList('FLASH'.codeUnits);
+      await _engine.sendStreamMessage(
+        streamId: _streamId!,
+        data: data,
+        length: data.length,
       );
       HapticFeedback.selectionClick();
     } catch (error) {
       debugPrint('Remote torch command failed: $error');
       _showMediaError('Impossibile inviare il comando torcia.');
     }
-  }
-
-  void _startCameraCommandListener() {
-    final homeId = _homeId;
-    final deviceId = _deviceId;
-    if (homeId == null || deviceId == null) return;
-    _cameraCommandSubscription?.cancel();
-    _cameraCommandSubscription = CameraCommandService()
-        .watchPendingTorchCommands(homeId: homeId, deviceId: deviceId)
-        .listen((command) => _handleCameraCommand(command, homeId, deviceId));
   }
 
   Future<void> _startKioskForPairedCamera() async {
@@ -371,31 +360,6 @@ class _SecurityPageState extends State<SecurityPage>
       // Kiosk is optional until the device has completed Device Owner
       // provisioning; streaming must remain available on ordinary devices.
       debugPrint('Lock Task not activated: $error');
-    }
-  }
-
-  Future<void> _handleCameraCommand(
-    CameraCommand command,
-    String homeId,
-    String deviceId,
-  ) async {
-    try {
-      await _engine.setCameraTorchOn(command.desiredState);
-      if (mounted) setState(() => _isFlashOn = command.desiredState);
-      await CameraCommandService().acknowledge(
-        homeId: homeId,
-        deviceId: deviceId,
-        commandId: command.id,
-        succeeded: true,
-      );
-    } catch (error) {
-      debugPrint('Camera command failed: $error');
-      await CameraCommandService().acknowledge(
-        homeId: homeId,
-        deviceId: deviceId,
-        commandId: command.id,
-        succeeded: false,
-      );
     }
   }
 
@@ -655,7 +619,7 @@ class _SecurityPageState extends State<SecurityPage>
 
   // --- CONTROLLI VISORE MIGLIORATI ---
   Widget _buildViewerInterface() {
-    final cameraUids = _activeCameras.toList()..sort();
+    const cameraUids = kCamUids;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

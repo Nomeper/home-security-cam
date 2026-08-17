@@ -1,12 +1,12 @@
 // lib/splash_screen.dart
-import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'utils.dart';
+import 'app_id_input_screen.dart';
+import 'app_launch.dart';
 import 'role_selection_screen.dart';
 import 'security_page.dart';
-import 'sign_in_screen.dart';
+import 'services/device_owner_service.dart';
+import 'utils.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -23,23 +23,33 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkData() async {
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(milliseconds: 400));
     if (!mounted) return;
 
-    if (FirebaseAuth.instance.currentUser == null) {
-      _navigate(const SignInScreen());
-      return;
+    final prefs = await SharedPreferences.getInstance();
+    final appId = prefs.getString('agora_app_id');
+    final isDeviceOwner = await DeviceOwnerService().isManagedCamera();
+    if (isDeviceOwner) {
+      await prefs.setString(
+        'role',
+        AppLaunchDecision.roleForDeviceOwner().toString(),
+      );
     }
 
-    // The legacy role is only a UI preference. RTC authorization is issued by
-    // the Firebase Function after the device has been paired.
-    final prefs = await SharedPreferences.getInstance();
-    final String? savedRole = prefs.getString('role');
-    if (savedRole != null) {
-      DeviceRole role = stringToRole(savedRole);
-      _navigate(SecurityPage(role: role));
-    } else {
-      _navigate(const RoleSelectionScreen());
+    final route = AppLaunchDecision.decide(
+      hasAppId: appId != null && appId.isNotEmpty,
+      isDeviceOwner: isDeviceOwner,
+      role: prefs.getString('role'),
+    );
+
+    if (!mounted) return;
+    switch (route) {
+      case AppLaunchRoute.appId:
+        _navigate(const AppIdInputScreen());
+      case AppLaunchRoute.roleSelection:
+        _navigate(const RoleSelectionScreen());
+      case AppLaunchRoute.security:
+        _navigate(SecurityPage(role: stringToRole(prefs.getString('role'))));
     }
   }
 

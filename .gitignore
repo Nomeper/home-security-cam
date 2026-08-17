@@ -57,3 +57,7 @@ app.*.map.json
 # Local backups and generated symbols
 /Backup/
 /symbols/
+
+# Release artifacts for GitHub Releases (do not commit)
+*.apk
+SHA256SUMS.txt

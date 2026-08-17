@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'utils.dart';
-import 'home_setup_screen.dart';
+import 'app_launch.dart';
+import 'security_page.dart';
+import 'services/device_owner_service.dart';
 import 'splash_screen.dart';
+import 'utils.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
   const RoleSelectionScreen({super.key});
@@ -19,6 +21,24 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    _redirectManagedCamera();
+  }
+
+  Future<void> _redirectManagedCamera() async {
+    if (!await DeviceOwnerService().isManagedCamera()) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'role',
+      AppLaunchDecision.roleForDeviceOwner().toString(),
+    );
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => SecurityPage(
+          role: AppLaunchDecision.roleForDeviceOwner(),
+        ),
+      ),
+    );
   }
 
   Future<void> _selectRole(BuildContext context, DeviceRole role) async {
@@ -43,7 +63,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
     ]);
 
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => HomeSetupScreen(role: role)),
+      MaterialPageRoute(builder: (_) => SecurityPage(role: role)),
     );
   }
 
@@ -75,7 +95,6 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
       prefs.remove('role'),
       prefs.remove('home_id'),
       prefs.remove('device_id'),
-      // Legacy key used before the server-side RTC session flow.
       prefs.remove('agora_app_id'),
       for (final key in prefs.getKeys().where((key) => key.startsWith('cam_name_')))
         prefs.remove(key),
@@ -99,7 +118,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
           children: [
             _RoleCard(
               title: "VISORE",
-              subtitle: "Monitora le camere (con Intercom)",
+              subtitle: "Monitora le telecamere in tempo reale",
               icon: Icons.visibility,
               color: Colors.greenAccent,
               onTap: () => _selectRole(context, DeviceRole.viewer),
@@ -131,7 +150,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
             TextButton.icon(
               icon: const Icon(Icons.delete_forever,
                   size: 16, color: Colors.grey),
-              label: const Text("Reimposta pairing e ruolo",
+              label: const Text("Reimposta App ID e ruolo",
                   style: TextStyle(color: Colors.grey)),
               onPressed: () => _resetAppId(context),
             )
