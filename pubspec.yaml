@@ -1,0 +1,41 @@
+name: home_security_cam
+description: Professional Home Security App powered by Agora.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI e Icone
+  cupertino_icons: ^1.0.8
+
+  # Streaming e Camera (Agora)
+  # Aggiornato alla versione 6.4.0 per pieno supporto a Flutter 3.24+
+  agora_rtc_engine: ^6.4.0
+  
+  # Funzionalità di Sistema
+  # Gestione permessi e prevenzione standby
+  permission_handler: ^11.3.1
+  wakelock_plus: ^1.2.8
+  
+  # Memoria locale
+  shared_preferences: ^2.3.2
+  firebase_core: ^4.13.0
+  firebase_auth: ^6.5.7
+  cloud_functions: ^6.3.6
+  firebase_app_check: ^0.4.6
+  cloud_firestore: ^6.8.0
+  flutter_foreground_task: ^10.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  # Lints aggiornati per suggerimenti di codice più moderni
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

@@ -1,0 +1,19 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Home membership and device authorisation are server-managed. Clients
+    // request RTC tokens and send controls through callable Functions.
+    // A paired camera may only read its own pending command feed.
+    match /homes/{homeId}/devices/{deviceId}/commands/{commandId} {
+      allow read: if request.auth != null &&
+        get(/databases/$(database)/documents/homes/$(homeId)/devices/$(deviceId))
+          .data.ownerUid == request.auth.uid;
+      allow write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,11 @@
+---
+description: Memoria progetto — creare, leggere e aggiornare progress.md
+alwaysApply: true
+---
+
+# Progress memory (`progress.md`)
+
+Se `progress.md` non esiste nella root, **crealo subito** (template memoria progetto).
+All’inizio di una chat nuova (o quando manca contesto), **leggi** `progress.md`.
+Dopo ogni modifica significativa, e a fine sessione: aggiorna data, Completato/In corso, Problemi aperti, Prossimi passi.
+Niente segreti nel file.
