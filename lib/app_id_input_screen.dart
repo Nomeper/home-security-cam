@@ -5,6 +5,7 @@ import 'role_selection_screen.dart';
 import 'security_page.dart';
 import 'services/device_owner_service.dart';
 import 'app_launch.dart';
+import 'utils.dart';
 
 class AppIdInputScreen extends StatefulWidget {
   const AppIdInputScreen({super.key});
@@ -34,6 +35,20 @@ class _AppIdInputScreenState extends State<AppIdInputScreen> {
     if (data?.text == null) return;
     _controller.text = data!.text!;
     setState(() => _isValid = _controller.text.trim().length > 10);
+  }
+
+  Future<void> _openAgoraWebsite() async {
+    try {
+      await DeviceOwnerService().openUrl(kAgoraWebsiteUrl);
+    } on MissingPluginException {
+      // Tests and platforms without the Android channel.
+    } on PlatformException catch (error) {
+      debugPrint('Open Agora site failed: $error');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Impossibile aprire il sito Agora.')),
+      );
+    }
   }
 
   Future<void> _saveAppId() async {
@@ -107,6 +122,22 @@ class _AppIdInputScreenState extends State<AppIdInputScreen> {
                 ),
               ),
               onChanged: (v) => setState(() => _isValid = v.trim().length > 10),
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: GestureDetector(
+                onTap: _openAgoraWebsite,
+                child: Text(
+                  'www.agora.io',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.blueAccent.withValues(alpha: 0.85),
+                    decoration: TextDecoration.underline,
+                    decorationColor: Colors.blueAccent.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 20),
             SizedBox(

@@ -57,6 +57,41 @@ android {
 
         // Abilitiamo MultiDex per evitare errori con librerie pesanti come Agora
         multiDexEnabled = true
+
+        // Telefoni ARM 64-bit + emulatore x86_64. Niente ARM 32-bit.
+        ndk {
+            abiFilters.clear()
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
+    }
+
+    packaging {
+        jniLibs {
+            // Estensioni Agora non usate (bellezza, avatar, AV1, condivisione schermo…).
+            // Restano rtc-sdk, ffmpeg, encoder/decoder H.264, iris e Flutter.
+            excludes += setOf(
+                "**/libagora_ai_noise_suppression_extension.so",
+                "**/libagora_ai_noise_suppression_ll_extension.so",
+                "**/libagora_ai_echo_cancellation_extension.so",
+                "**/libagora_ai_echo_cancellation_ll_extension.so",
+                "**/libagora_audio_beauty_extension.so",
+                "**/libagora_clear_vision_extension.so",
+                "**/libagora_content_inspect_extension.so",
+                "**/libagora_screen_capture_extension.so",
+                "**/libagora_segmentation_extension.so",
+                "**/libagora_spatial_audio_extension.so",
+                "**/libagora_face_detection_extension.so",
+                "**/libagora_face_capture_extension.so",
+                "**/libagora_lip_sync_extension.so",
+                "**/libagora_video_quality_analyzer_extension.so",
+                "**/libagora_video_av1_encoder_extension.so",
+                "**/libagora_video_av1_decoder_extension.so",
+                "**/libagora_pvc_extension.so",
+                "**/libagora_super_resolution_extension.so",
+                "**/libagora_drm_loader_extension.so",
+                "**/libagora_udrm3_extension.so",
+            )
+        }
     }
 
     signingConfigs {
@@ -104,4 +139,8 @@ flutter {
 dependencies {
     // Supporto MultiDex per garantire compatibilità con dispositivi Android più vecchi
     implementation("androidx.multidex:multidex:2.0.1")
+}
+
+configurations.configureEach {
+    exclude(group = "io.agora.rtc", module = "full-screen-sharing-special")
 }

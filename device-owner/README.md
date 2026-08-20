@@ -17,6 +17,6 @@ Non inserire password Wi‑Fi, token Agora o credenziali Firebase nel QR.
 
 ## Prima del test
 
-Il telefono deve essere nuovo o ripristinato ai dati di fabbrica e avere rete durante il download (~253 MB). GitHub Releases usa un redirect HTTPS: se il provisioning fallisce sul download, serve un URL diretto senza redirect.
+Il telefono deve essere nuovo o ripristinato ai dati di fabbrica, **ARM 64-bit**, e avere rete durante il download. L’APK GitHub **v1.0.1** nel QR è obsoleta (~253 MB, codice vecchio). L’APK locale attuale è **1.0.1+18** (~120 MB, solo 64-bit). GitHub Releases usa un redirect HTTPS: se il provisioning fallisce sul download, serve un URL diretto senza redirect.
 
 Dopo l'installazione: stesso Agora App ID sul visore e sulla telecamera. Progetto Agora Testing senza token, vedi `AGORA_SETUP.md`.

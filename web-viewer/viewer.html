@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <title>Casa Sicura — Visore PC 19e</title>
+  <link rel="stylesheet" href="styles.css?v=19e">
+  <script>
+    if (location.hostname === "127.0.0.1") {
+      location.replace(
+        "http://localhost:" + (location.port || "80") +
+          location.pathname + location.search + location.hash
+      );
+    }
+  </script>
+</head>
+<body>
+  <div id="gate" class="gate">
+    <div class="gate-card">
+      <p class="eyebrow">Casa Sicura · build 19e</p>
+      <h1>Visore PC</h1>
+      <p class="lede">
+        Incolla lo stesso App ID Agora dei telefoni. Questo PC fa solo da visore:
+        non usa la webcam.
+      </p>
+      <label for="app-id">App ID Agora</label>
+      <input
+        id="app-id"
+        type="text"
+        spellcheck="false"
+        autocomplete="off"
+        placeholder="Incolla l’App ID del progetto Testing"
+      >
+      <p class="agora-site">
+        <a href="https://www.agora.io/" target="_blank" rel="noopener noreferrer">www.agora.io</a>
+      </p>
+      <button id="connect-btn" type="button">Connetti</button>
+      <p id="gate-status" class="gate-note" hidden></p>
+      <p id="gate-error" class="error" hidden></p>
+      <p class="hint">
+        Canale fisso <code>casa_sicura</code>. Apri questa pagina da
+        <code>http://localhost</code> (non da 127.0.0.1). Chiudi il visore
+        sul telefono mentre usi il PC, così le camere ricevono un solo comando WATCH.
+      </p>
+    </div>
+  </div>
+
+  <div id="app" class="app" hidden>
+    <header class="topbar">
+      <div class="status">
+        <span id="status-dot" class="dot"></span>
+        <div>
+          <strong id="status-title">Connessione…</strong>
+          <p id="status-sub">Nessuna camera selezionata</p>
+        </div>
+      </div>
+      <button id="leave-btn" class="ghost" type="button">Disconnetti</button>
+    </header>
+
+    <main id="stage" class="stage">
+      <div id="empty" class="empty">
+        <p>Seleziona una o più camere</p>
+        <span>Solo le camere scelte trasmettono video</span>
+      </div>
+      <div id="grid" class="grid" hidden></div>
+    </main>
+
+    <footer class="dock">
+      <div id="chips" class="chips"></div>
+      <button id="talk-btn" class="talk" type="button" disabled>Parla</button>
+    </footer>
+  </div>
+
+  <script src="AgoraRTC_N.js?v=19e"></script>
+  <script src="app.js?v=19e"></script>
+</body>
+</html>

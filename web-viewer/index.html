@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-store">
+  <title>Casa Sicura — Visore PC 19e</title>
+  <style>
+    html, body, iframe { margin: 0; height: 100%; width: 100%; border: 0; background: #050505; }
+    #banner {
+      display: none;
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      z-index: 10;
+      max-width: 420px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #3a1216;
+      color: #ff8a96;
+      font: 14px/1.4 "Segoe UI", sans-serif;
+    }
+    #banner button {
+      margin-top: 10px;
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      padding: 8px;
+      background: #4ea3ff;
+      color: #041018;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+    <iframe id="frame" title="Visore" src="viewer.html?v=19e"></iframe>
+  <div id="banner">
+    Agora non risponde (il join si è bloccato). Premi Riprova.
+    <button id="retry" type="button">Riprova</button>
+  </div>
+  <script>
+    const frame = document.getElementById("frame");
+    const banner = document.getElementById("banner");
+    let timer;
+    function reload() {
+      banner.style.display = "none";
+      frame.src = "viewer.html?v=19e&r=" + Date.now();
+    }
+    window.addEventListener("message", (event) => {
+      if (event.data === "joining") {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => { banner.style.display = "block"; }, 10000);
+      }
+      if (event.data === "joined" || event.data === "failed") {
+        window.clearTimeout(timer);
+        banner.style.display = "none";
+      }
+    });
+    function isIdeBrowser() {
+      try {
+        if (window.top === window) return false;
+        const href = String(window.top.location.href || "");
+        return !/^https?:\/\/(localhost|127\.0\.0\.1)/i.test(href);
+      } catch (_) {
+        return true;
+      }
+    }
+    if (isIdeBrowser()) {
+      banner.style.display = "block";
+      banner.innerHTML =
+        "Apri questo visore in Chrome o Edge, non nella finestra di Cursor.<br>" +
+        "<button id='retry' type='button'>Ho capito</button>";
+      document.getElementById("retry").addEventListener("click", () => {
+        banner.style.display = "none";
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 name: home_security_cam
-description: Professional Home Security App powered by Agora.
+description: Android home cameras and viewer with Agora RTC, plus a local PC viewer.
 publish_to: 'none'
-version: 1.0.1+2
+version: 1.0.1+18
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -21,6 +21,7 @@ dependencies:
   # Gestione permessi e prevenzione standby
   permission_handler: ^11.3.1
   wakelock_plus: ^1.2.8
+  battery_plus: ^6.0.3
   
   # Memoria locale
   shared_preferences: ^2.3.2

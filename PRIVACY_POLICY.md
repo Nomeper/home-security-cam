@@ -2,23 +2,30 @@
 
 ## Cattura della telecamera
 
-- La telecamera pubblica esclusivamente il video.
-- Il microfono della telecamera non viene attivato né pubblicato.
-- Su Android, quando la telecamera passa in background o lo schermo si blocca, la sessione video continua con foreground service e notifica persistente.
-- Su iOS, la pubblicazione e preview video si fermano in background e riprendono al ritorno nell'app: iOS non consente cattura video continua in background.
+- La telecamera pubblica video solo quando il visore è presente e quella CAM è selezionata.
+- In attesa del visore il sensore resta spento (standby).
+- Il microfono della telecamera si attiva solo su richiesta esplicita del visore (pulsante audio nel dock).
+- Su Android, quando la telecamera passa in background o lo schermo si blocca, la sessione continua con foreground service e notifica persistente solo se quella camera è selezionata dal visore.
 
 ## Visore
 
-- Il visore entra in Agora come audience e non pubblica tracce locali.
-- Il push-to-talk non è disponibile finché il modello di autorizzazione non include esplicitamente un ruolo di pubblicazione temporanea.
+- Il visore entra in Agora come host **senza** pubblicare video né microfono (non audience: in Live Broadcast l’audience non può inviare comandi data stream).
+- Può mostrare più camere insieme; solo le camere selezionate nella griglia trasmettono.
+- Per ogni camera può vedere la batteria, flash, lente (frontale/posteriore) e ascoltare l’audio ambientale.
+- Flash posteriore: LED. Flash frontale: schermo della CAM bianco a luminosità massima.
+- Il pulsante «Parla» attiva temporaneamente il microfono del visore verso le telecamere selezionate.
 
 ## Comandi remoti
 
-- Solo il proprietario della casa può inviare comandi remoti.
-- I comandi sono mirati a un dispositivo abbinato, scadono e richiedono conferma di esecuzione.
+- I comandi (selezione CAM, flash, audio, lente) viaggiano sul canale Agora via data stream.
+- Le telecamere eseguono solo comandi indirizzati al proprio UID.
+
+## Permessi
+
+- All’avvio l’app chiede fotocamera, microfono e notifiche.
+- Non usa Bluetooth né «dispositivi vicini».
 
 ## Limiti di piattaforma
 
 - Android richiede una foreground service notification per cattura continua in background.
-- iOS non supporta la cattura video continua in background; la configurazione finale deve rispettare le policy App Store.
 - Un avviso persistente deve comunicare chiaramente quando il video è in trasmissione.

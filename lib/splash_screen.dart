@@ -6,6 +6,7 @@ import 'app_launch.dart';
 import 'role_selection_screen.dart';
 import 'security_page.dart';
 import 'services/device_owner_service.dart';
+import 'services/startup_permissions.dart';
 import 'utils.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -23,6 +24,8 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkData() async {
+    await StartupPermissions.requestAll();
+    if (!mounted) return;
     await Future.delayed(const Duration(milliseconds: 400));
     if (!mounted) return;
 

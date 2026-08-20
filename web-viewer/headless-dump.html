@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html lang="it"><head>
+  <meta charset="utf-8">
+  <title>DONE</title>
+</head>
+<body>
+  <pre id="out">avvioÔÇª
+hostname=localhost protocol=http:
+AgoraRTC=object
+client creato, joinÔÇª
+JOIN OK uid=101 state=CONNECTED
+leave ok</pre>
+  <script src="AgoraRTC_N.js?v=18f"></script>
+  <script>
+    const out = document.getElementById("out");
+    const APP = "ababcd4acd4345948729c6bfe1a011ed";
+    const CHANNEL = "casa_sicura";
+    function log(msg) {
+      out.textContent += "\n" + msg;
+      fetch("/debug-log", { method: "POST", body: "[debug-join] " + msg }).catch(() => {});
+    }
+    function withTimeout(promise, ms, message) {
+      let timer;
+      const timeout = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(message)), ms);
+      });
+      return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+    }
+    (async () => {
+      try {
+        log("hostname=" + location.hostname + " protocol=" + location.protocol);
+        log("AgoraRTC=" + (typeof AgoraRTC));
+        if (typeof AgoraRTC === "undefined") throw new Error("SDK mancante");
+        AgoraRTC.setLogLevel(0);
+        const client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
+        log("client creato, joinÔÇª");
+        const uid = await withTimeout(
+          client.join(APP, CHANNEL, null, 101),
+          12000,
+          "TIMEOUT join 12s"
+        );
+        log("JOIN OK uid=" + uid + " state=" + client.connectionState);
+        await client.leave();
+        log("leave ok");
+      } catch (error) {
+        log("ERRORE " + (error && (error.code || error.name || "") + " " + (error.message || error)));
+      }
+      document.title = "DONE";
+    })();
+  </script>
+
+
+</body></html>
