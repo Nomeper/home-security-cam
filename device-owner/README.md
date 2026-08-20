@@ -1,22 +1,22 @@
-# QR Android Enterprise — v1.0.1
+# QR Android Enterprise — v1.0.1+18
 
 File pronto: `device-owner/provisioning-qr.png`
 
-Apri quell'immagine a schermo intero sul PC e inquadrala dal telefono factory-reset (6 tocchi sulla schermata iniziale).
+Apri quell'immagine a schermo intero sul PC e inquadrala dal telefono factory-reset (6 tocchi sulla schermata iniziale). Serve un telefono **ARM 64-bit**.
 
 ## Contenuto
 
 | Campo | Valore |
 |---|---|
 | Device Admin | `com.bebobbx.home_security_cam/.HomeSecurityDeviceAdminReceiver` |
-| APK | `https://github.com/Nomeper/home-security-cam/releases/download/v1.0.1/home-security-cam-1.0.1.apk` |
-| SHA-256 hex | `9156159d4b7823056afc7816705790dc8bf1904d0f2040f5baae35e2cca6a4cf` |
-| SHA-256 Base64 URL-safe | `kVYVnUt4IwVq_HgWcFeQ3IvxkE0PIED1uq414sympM8` |
+| APK | `https://github.com/Nomeper/home-security-cam/releases/download/v1.0.1-18/home-security-cam-1.0.1-18.apk` |
+| SHA-256 hex | `B2EA23D92B87D420003199D97C975FCB466C56DD0D21108D2F19C242245D949B` |
+| SHA-256 Base64 URL-safe | `suoj2SuH1CAAMZnZfJdfy0ZsVt0NIRCNLxnCQiRdlJs` |
 
 Non inserire password Wi‑Fi, token Agora o credenziali Firebase nel QR.
 
 ## Prima del test
 
-Il telefono deve essere nuovo o ripristinato ai dati di fabbrica, **ARM 64-bit**, e avere rete durante il download. L’APK GitHub **v1.0.1** nel QR è obsoleta (~253 MB, codice vecchio). L’APK locale attuale è **1.0.1+18** (~120 MB, solo 64-bit). GitHub Releases usa un redirect HTTPS: se il provisioning fallisce sul download, serve un URL diretto senza redirect.
+Il telefono deve essere nuovo o ripristinato ai dati di fabbrica, **ARM 64-bit**, e avere rete durante il download (~120 MB). Non usare i QR/APK **v1.0.0** o **v1.0.1**. GitHub Releases usa un redirect HTTPS: se il provisioning fallisce sul download, serve un URL diretto senza redirect.
 
 Dopo l'installazione: stesso Agora App ID sul visore e sulla telecamera. Progetto Agora Testing senza token, vedi `AGORA_SETUP.md`.

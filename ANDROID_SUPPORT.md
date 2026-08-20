@@ -41,4 +41,4 @@ flutter build apk --debug
 flutter build apk --release --target-platform android-arm64,android-x64
 ```
 
-La build release richiede `android/key.properties` locale e un keystore esterno al repository.
+La build release richiede `android/key.properties` locale e un keystore esterno al repository. L’artefatto pubblicato è [GitHub Release v1.0.1+18](https://github.com/Nomeper/home-security-cam/releases/tag/v1.0.1-18) (~120 MB, 64-bit).

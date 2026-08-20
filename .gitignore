@@ -63,3 +63,6 @@ SHA256SUMS.txt
 
 # Local visore PC logs
 web-viewer/debug.log
+
+# Generated PDF preview screenshots
+docs/_preview/

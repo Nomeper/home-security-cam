@@ -92,7 +92,7 @@ Configurare gli smartphone Android dedicati alle telecamere come dispositivi And
 - Calcolare checksum SHA-256 dell'APK.
 - Pubblicare il file su HTTPS diretto e immutabile per versione.
 - **Verifica:** checksum del file scaricato corrisponde a quello inserito nel QR.
-- **Stato:** APK e checksum pubblicati su GitHub Releases `v1.0.1`. SHA-256 hex `9156159d4b7823056afc7816705790dc8bf1904d0f2040f5baae35e2cca6a4cf`. Non riusare `v1.0.0`.
+- **Stato:** APK e checksum pubblicati su GitHub Releases `v1.0.1-18` (`1.0.1+18`, ~120 MB, 64-bit). SHA-256 hex `B2EA23D92B87D420003199D97C975FCB466C56DD0D21108D2F19C242245D949B`. Non riusare `v1.0.0` né `v1.0.1`.
 
 ### D3.2 Generare payload QR Android Enterprise — IMPLEMENTATO, DA TESTARE
 
@@ -100,7 +100,7 @@ Configurare gli smartphone Android dedicati alle telecamere come dispositivi And
 - Usare `adminExtras` per un codice enrollment monouso, mai per segreti.
 - Limitare scadenza e uso del codice sul backend.
 - **Verifica:** QR prova il provisioning su un device factory-reset e rifiuta codice scaduto/riusato.
-- **Stato:** payload in `device-owner/provisioning-qr.json` con componente DPC, URL APK v1.0.1 e checksum Base64 URL-safe. Nessun segreto nel QR. Da testare su telefono factory-reset.
+- **Stato:** payload in `device-owner/provisioning-qr.json` con componente DPC, URL APK `v1.0.1-18` e checksum Base64 URL-safe. Nessun segreto nel QR. Da testare su telefono factory-reset 64-bit.
 
 ### D3.3 Onboarding dopo provisioning — IMPLEMENTATO, DA TESTARE
 

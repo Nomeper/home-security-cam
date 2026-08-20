@@ -20,13 +20,13 @@ I telefoni ARM a 32 bit non sono supportati. L’APK include anche `x86_64` per 
 ## Configurazione (gratis)
 
 1. Crea un progetto Agora di test senza token: [AGORA_SETUP.md](AGORA_SETUP.md).
-2. Installa l’APK **1.0.1+18** (o successiva) su visore e telecamere.
+2. Installa l’APK **[1.0.1+18](https://github.com/Nomeper/home-security-cam/releases/tag/v1.0.1-18)** su visore e telecamere.
 3. Incolla **lo stesso App ID** su tutti i dispositivi. Il link Agora nella schermata iniziale apre il browser predefinito.
 4. Sul visore scegli Visore; sulla telecamera scegli CAM 1–6 (un Device Owner usa CAM 1).
 
 Non usare visore telefono e visore PC insieme. Non serve Firebase, carta di credito o backend.
 
-L’APK GitHub **v1.0.1** è obsoleta. Per il kiosk vedi [device-owner/README.md](device-owner/README.md).
+L’APK GitHub **[v1.0.1+18](https://github.com/Nomeper/home-security-cam/releases/tag/v1.0.1-18)** è quella da usare. Non usare v1.0.0 né v1.0.1. Per il kiosk vedi [device-owner/README.md](device-owner/README.md). Manuale: [docs/Manuale_uso_Casa_Sicura.pdf](docs/Manuale_uso_Casa_Sicura.pdf).
 
 ## Verifica
 

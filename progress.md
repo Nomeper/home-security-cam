@@ -3,20 +3,20 @@
 > Memoria a lungo termine per Cursor. All’inizio di ogni chat nuova: `@progress.md` → «Parti da qui».
 > Aggiornare **dopo ogni modifica significativa** (e a fine sessione).
 
-## Ultimo aggiornamento: 2026-08-20 (commit GitHub 1.0.1+18)
+## Ultimo aggiornamento: 2026-08-20 (GitHub Release v1.0.1-18)
 
 - **Progetto:** Applicazione Flutter Android per telecamera di sicurezza domestica (Agora RTC) + visore PC statico.
 - **Branch:** main
-- **Working tree:** commit e push delle modifiche (APK locale **non** è nel git).
+- **Working tree:** da allineare con release GitHub e QR Device Owner.
 
-## Parti da qui (2026-08-20, APK 1.0.1+18 su GitHub)
+## Parti da qui (2026-08-20, GitHub allineato)
 
-- Installare **`home-security-cam-1.0.1+18-local.apk`** su visore e **tutte** le camere. La +17 è stata eliminata. **Solo ARM 64-bit**.
-- APK **119.5 MB**: estensioni Agora extra e ABI 32-bit rimosse. Restano `arm64-v8a` + `x86_64`.
-- Prima pagina App ID (app e visore PC **19e**): link piccolo `www.agora.io`.
-- Flash visore con camera **frontale**: schermo CAM bianco a luminosità massima; OFF torna Eco o normale.
+- Installare **[home-security-cam-1.0.1-18.apk](https://github.com/Nomeper/home-security-cam/releases/tag/v1.0.1-18)** su visore e **tutte** le camere. **Solo ARM 64-bit**.
+- Release GitHub: https://github.com/Nomeper/home-security-cam/releases/tag/v1.0.1-18 (~120 MB).
+- QR Device Owner aggiornato a questa APK (`device-owner/provisioning-qr.png`). Non usare v1.0.0 / v1.0.1.
+- Flash frontale: schermo bianco a luminosità max. Link `www.agora.io` sotto l’App ID.
 - Visore PC: `web-viewer/avvia.bat` → `http://localhost:8787/index.html?v=19e`.
-- Documentazione aggiornata: README, ANDROID_SUPPORT, AGORA_SETUP, PRIVACY_POLICY, visore PC, Device Owner.
+- Manuale PDF: `docs/Manuale_uso_Casa_Sicura.pdf`.
 
 ## Panoramica tecnica
 
@@ -36,7 +36,19 @@
 | Batteria visore | All’ingresso del visore: `BATTREQ` → ogni camera già attiva rinvia `BATT:` |
 | Backend | Nessuno. Firebase / Cloud Functions non usati |
 | Device Owner | QR kiosk sulla telecamera dedicata; visore = APK sul telefono quotidiano |
-| APK locale | `home-security-cam-1.0.1+18-local.apk` (firmata, **119.5 MB**). SHA-256 `B2EA23D92B87D420003199D97C975FCB466C56DD0D21108D2F19C242245D949B`. ABI: `arm64-v8a` + `x86_64`. Niente `armeabi-v7a`. Estensioni Agora extra rimosse; restano encoder/decoder H.264. Non pubblicata su GitHub. |
+| APK locale / GitHub | `home-security-cam-1.0.1+18-local.apk` e Release **[v1.0.1-18](https://github.com/Nomeper/home-security-cam/releases/tag/v1.0.1-18)** (~120 MB). SHA-256 `B2EA23D92B87D420003199D97C975FCB466C56DD0D21108D2F19C242245D949B`. ABI: `arm64-v8a` + `x86_64`. |
+
+## Completato (sessione 2026-08-20, manuale d'uso PDF)
+
+- Creato `docs/Manuale_uso_Casa_Sicura.pdf` (17 pagine, italiano): copertina, indice, setup Agora, app camera/visore, webapp `web-viewer`, Eco/standby, kiosk, privacy, problemi frequenti.
+- Generatore: `docs/genera_manuale.py`.
+
+## Completato (sessione 2026-08-20, GitHub allineato a 1.0.1+18)
+
+- Descrizione About del repo GitHub aggiornata.
+- Release **v1.0.1-18** pubblicata con APK `home-security-cam-1.0.1-18.apk` (~120 MB).
+- QR Device Owner e `provisioning-qr.json` puntano a questa APK.
+- Release v1.0.1 marcata come superata.
 
 ## Completato (sessione 2026-08-20, APK più leggera 1.0.1+18)
 
@@ -224,14 +236,13 @@
 - [ ] Verificare visore: batteria solo sotto l’icona cam nel dock, non in alto a sinistra sul video.
 - [ ] Non usare visore telefono e visore PC insieme (ultimo `WATCH:` vince).
 - [ ] Stesso App ID Agora (progetto Testing **senza token**) su tutti i telefoni e sul PC.
-- [ ] Modifiche **committate e pushate** su `main`. APK locale non è nel git.
-- [ ] L’APK GitHub v1.0.1 è obsoleta. Non usarla.
+- [x] Modifiche committate e pushate su `main`.
+- [x] GitHub Release **v1.0.1-18** pubblicata. QR Device Owner aggiornato. Non usare v1.0.0 / v1.0.1.
 - [ ] Recupero kiosk: solo factory reset (nessun backend).
 - [ ] Non usare il QR/APK v1.0.0.
 
 ## Prossimi passi
 
-1. Installare `home-security-cam-1.0.1+18-local.apk` su visore e **tutte** le camere.
+1. Installare [home-security-cam-1.0.1-18.apk](https://github.com/Nomeper/home-security-cam/releases/tag/v1.0.1-18) su visore e **tutte** le camere.
 2. Verificare video, flash frontale, link Agora, Eco/STANDBY.
 3. Eventuale ulteriore taglio `x86_64` **solo se richiesto** (scenderebbe ancora, ma niente emulatore).
-4. Eventuale nuova release GitHub con APK **1.0.1+18** **solo se richiesto** (il QR Device Owner punta ancora a v1.0.1 obsoleta).
