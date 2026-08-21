@@ -3,11 +3,11 @@
 > Memoria a lungo termine per Cursor. All’inizio di ogni chat nuova: `@progress.md` → «Parti da qui».
 > Aggiornare **dopo ogni modifica significativa** (e a fine sessione).
 
-## Ultimo aggiornamento: 2026-08-20 (GitHub Release v1.0.1-18)
+## Ultimo aggiornamento: 2026-08-21 (PDF capacità assistente)
 
 - **Progetto:** Applicazione Flutter Android per telecamera di sicurezza domestica (Agora RTC) + visore PC statico.
-- **Branch:** main
-- **Working tree:** da allineare con release GitHub e QR Device Owner.
+- **Branch:** cursor/capacit-in-pdf-b6bb (stato app invariato rispetto a v1.0.1-18).
+- **Working tree:** PDF guida assistente aggiunto in `docs/`.
 
 ## Parti da qui (2026-08-20, GitHub allineato)
 
@@ -17,6 +17,7 @@
 - Flash frontale: schermo bianco a luminosità max. Link `www.agora.io` sotto l’App ID.
 - Visore PC: `web-viewer/avvia.bat` → `http://localhost:8787/index.html?v=19e`.
 - Manuale PDF: `docs/Manuale_uso_Casa_Sicura.pdf`.
+- Guida capacità assistente Cursor: `docs/Cosa_posso_fare.pdf`.
 
 ## Panoramica tecnica
 
@@ -37,6 +38,11 @@
 | Backend | Nessuno. Firebase / Cloud Functions non usati |
 | Device Owner | QR kiosk sulla telecamera dedicata; visore = APK sul telefono quotidiano |
 | APK locale / GitHub | `home-security-cam-1.0.1+18-local.apk` e Release **[v1.0.1-18](https://github.com/Nomeper/home-security-cam/releases/tag/v1.0.1-18)** (~120 MB). SHA-256 `B2EA23D92B87D420003199D97C975FCB466C56DD0D21108D2F19C242245D949B`. ABI: `arm64-v8a` + `x86_64`. |
+
+## Completato (sessione 2026-08-21, PDF «Cosa posso fare»)
+
+- Creato `docs/Cosa_posso_fare.pdf` (italiano): chi è l'assistente Cursor, cosa sa fare sul codice, cosa può fare su Casa Sicura, come assegnare incarichi, limiti, memoria `progress.md`.
+- Generatore: `docs/genera_capacita_assistente.py`. Copia anche in artifact scaricabile.
 
 ## Completato (sessione 2026-08-20, manuale d'uso PDF)
 
