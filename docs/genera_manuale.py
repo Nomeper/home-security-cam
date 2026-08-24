@@ -366,8 +366,10 @@ def build() -> Path:
         "Casa Sicura è un’app per la casa: usi dei telefoni Android come telecamere "
         "e un altro telefono — oppure il computer — come visore. Il video arriva in "
         "tempo reale. Non c’è un tuo server, non serve Firebase e non paghi un "
-        "abbonamento all’app: il collegamento passa dal servizio gratuito Agora, "
-        "con un progetto di test che crei tu."
+        "abbonamento all’app: il collegamento passa dal servizio gratuito Agora. "
+        "Senza un account Agora e l’App ID (il codice API che ti danno) l’app non "
+        "funziona: visore e telecamere non si vedono. Registrandoti su agora.io "
+        "hai 10.000 minuti di streaming gratis ogni mese."
     )
     pdf.p(
         "Puoi collegare fino a sei telecamere (CAM 1–6). Restano pronte in rete, "
@@ -378,7 +380,7 @@ def build() -> Path:
     pdf.callout(
         "ok",
         "Guida rapida",
-        "1) Crea un progetto Agora di test e copia l’App ID.  "
+        "1) Registrati su agora.io (gratis, 10.000 minuti di streaming al mese) e crea un progetto di test: copia l’App ID.  "
         "2) Installa la stessa app su visore e telecamere.  "
         "3) Incolla l’App ID, la chiave di casa e scegli i ruoli (un visore, CAM 1–6 univoche).  "
         "4) Sul visore tocca le CAM da vedere — oppure sul PC doppio clic su avvia.bat.  "
@@ -429,8 +431,9 @@ def build() -> Path:
     pdf.h2("Account Agora")
     pdf.p(
         "Serve un progetto Agora in modalità Testing, senza token. Lo crei in pochi "
-        "minuti sul sito agora.io, è gratuito e lo stesso codice (App ID) va incollato "
-        "su ogni telefono e sul visore PC."
+        "minuti sul sito agora.io: registrati, è gratuito e ogni mese hai 10.000 "
+        "minuti di streaming. L’App ID è il codice API di Agora: lo stesso va "
+        "incollato su ogni telefono e sul visore PC. Senza quell’App ID l’app non parte."
     )
     pdf.kv_table(
         [
@@ -451,14 +454,17 @@ def build() -> Path:
 
     pdf.chapter("3. Crea l’App ID Agora (gratis)")
     pdf.p(
-        "Senza questo codice visore e telecamere non si trovano. Usalo identico "
-        "su tutti i dispositivi. Non copiare l’App Certificate: serve un progetto "
-        "che accetti l’ingresso senza token."
+        "Senza questo codice visore e telecamere non si trovano: l’app usa l’API di "
+        "Agora per lo streaming, non un server proprio. Registrati su agora.io "
+        "(gratis) e incolla l’App ID identico su tutti i dispositivi. Ogni mese "
+        "hai 10.000 minuti di streaming gratis. Non copiare l’App Certificate: serve "
+        "un progetto che accetti l’ingresso senza token."
     )
     pdf.numbered(
         [
             "Apri www.agora.io (dall’app, sotto il campo App ID, c’è già il link) "
-            "e registrati alla console console.agora.io.",
+            "e registrati alla console console.agora.io. L’account è gratis e include "
+            "10.000 minuti di streaming al mese.",
             "Crea un progetto in modalità Testing (o “testing without token”, a "
             "seconda della lingua della console).",
             "Copia l’App ID: è una stringa lunga. Tienila per te come una password "
@@ -473,8 +479,8 @@ def build() -> Path:
         "ok",
         "Link nell’app",
         "Sulla prima schermata, sotto il campo App ID, il testo piccolo www.agora.io "
-        "apre il sito nel browser predefinito del telefono. Sul visore PC il link "
-        "si apre in una nuova scheda.",
+        "apre il sito nel browser predefinito del telefono (registrati lì: 10.000 minuti "
+        "gratis al mese). Sul visore PC il link si apre in una nuova scheda.",
     )
     pdf.callout(
         "warn",

@@ -4,7 +4,7 @@ Pagina locale per guardare le telecamere Android dal computer. Non è un’app F
 
 ## Cosa fa
 
-- Chiede l’**App ID Agora** e la **chiave di casa** (gli stessi dei telefoni). Sotto l’App ID c’è il link `www.agora.io`.
+- Chiede l’**App ID Agora** e la **chiave di casa** (gli stessi dei telefoni). Sotto l’App ID c’è il link `www.agora.io` (registrati lì: l’app ha bisogno dell’API Agora per funzionare; ogni mese hai 10.000 minuti di streaming gratis).
 - Entra nel canale `casa_sicura` come visore (host silenzioso, UID **101**), con cifratura AES-256-GCM2.
 - Non accende la webcam del PC.
 - Tocca CAM 1–6 per chiedere il video (`WATCH:`). Batteria, flash, audio, lente (frontale/posteriore) e «Parla» come sul telefono visore.

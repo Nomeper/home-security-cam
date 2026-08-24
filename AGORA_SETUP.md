@@ -1,17 +1,21 @@
 # Agora gratis (senza Firebase)
 
+Questa app **non ha un server proprio**. Il video in diretta tra telecamere e visore passa da **Agora**. Senza un account Agora e l’**App ID** (il codice API che ti danno), l’app non funziona: visore e telecamere non si vedono.
+
 Visore e telecamera usano lo stesso Agora App ID, la stessa **chiave di casa**, il canale `casa_sicura` e nessun token.
+
+Ogni mese hai **10.000 minuti di streaming gratis**. Per una casa di solito basta. Non serve carta di credito.
 
 ## 1. Crea un progetto Agora gratuito
 
-1. Apri [console.agora.io](https://console.agora.io) (sito: [www.agora.io](https://www.agora.io/)) e registrati.
+1. Apri [www.agora.io](https://www.agora.io/) e **registrati** (console: [console.agora.io](https://console.agora.io)).
 2. Crea un progetto in modalità Testing.
-3. Copia l’**App ID**.
+3. Copia l’**App ID** (è il codice API: incollalo sull’app).
 4. Lascia disabilitata l’App Certificate: il progetto deve accettare il join **senza token**.
 
 Non copiare l’App Certificate nell’app.
 
-Sull’app e sul visore PC, sotto il campo App ID, c’è il link piccolo `www.agora.io` che apre il sito nel browser predefinito.
+Sull’app e sul visore PC, sotto il campo App ID, c’è il link `www.agora.io` (registrati qui; 10.000 minuti gratis al mese) che apre il sito nel browser predefinito.
 
 ## 2. Chiave di casa (cifratura)
 

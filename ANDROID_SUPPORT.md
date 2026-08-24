@@ -21,7 +21,7 @@ L’APK include `arm64-v8a` (telefoni) e `x86_64` (emulatore). Peso circa **120 
 | Area | Casi minimi |
 |---|---|
 | Installazione | Installazione pulita su telefono 64-bit; rifiuto su 32-bit |
-| App ID | Stesso codice su visore e CAM; link `www.agora.io` apre il browser di sistema |
+| App ID | Codice API di Agora (stesso su visore e CAM). Registrati su agora.io: 10.000 minuti gratis al mese. Il link apre il browser di sistema |
 | Ruoli | Visore, CAM 1–6, Device Owner → CAM 1 |
 | Streaming | Selezione CAM → video; visore esce → CAM in standby, sensore spento |
 | Flash | Posteriore: LED; frontale: schermo bianco a luminosità max; OFF → Eco o normale |

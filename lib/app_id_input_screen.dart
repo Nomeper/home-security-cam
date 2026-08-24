@@ -122,10 +122,18 @@ class _AppIdInputScreenState extends State<AppIdInputScreen> {
               ),
               const SizedBox(height: 10),
               Text(
-                'Stesso App ID e stessa chiave su visore, telecamere e PC. '
-                'La chiave cifra video, audio e comandi. Non è l’App ID.',
+                'Questa app ha bisogno di Agora per funzionare: non ha un server '
+                'proprio, il video passa da agora.io. Registrati (gratis), crea '
+                'un progetto di test e incolla qui l’App ID (è il codice API che '
+                'Agora ti dà). Senza App ID visore e telecamere non si vedono.\n\n'
+                'Ogni mese hai 10.000 minuti di streaming gratis.\n\n'
+                'Poi scegli una chiave di casa (la inventi tu) e usala identica '
+                'su visore, telecamere e PC. Non è l’App ID: cifra il video.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
+                style: TextStyle(
+                  height: 1.35,
+                  color: Colors.white.withValues(alpha: 0.55),
+                ),
               ),
               const SizedBox(height: 30),
               TextField(
@@ -153,7 +161,7 @@ class _AppIdInputScreenState extends State<AppIdInputScreen> {
                 child: GestureDetector(
                   onTap: _openAgoraWebsite,
                   child: Text(
-                    'www.agora.io',
+                    'www.agora.io — registrati qui (10.000 minuti gratis al mese)',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.blueAccent.withValues(alpha: 0.85),
