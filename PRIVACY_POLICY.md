@@ -17,7 +17,7 @@
 
 ## Comandi remoti
 
-- I comandi (selezione CAM, flash, audio, lente) viaggiano sul canale Agora via data stream.
+- I comandi (selezione CAM, flash, audio, lente) viaggiano sul canale Agora via data stream, cifrati insieme a video e audio (AES-256-GCM2, chiave di casa).
 - Le telecamere eseguono solo comandi indirizzati al proprio UID.
 
 ## Permessi

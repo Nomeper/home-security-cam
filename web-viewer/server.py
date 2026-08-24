@@ -50,7 +50,7 @@ class Server(ThreadingHTTPServer):
 
 if __name__ == "__main__":
     httpd = Server(("127.0.0.1", PORT), Handler)
-    url = f"http://localhost:{PORT}/index.html?v=19e"
+    url = f"http://localhost:{PORT}/index.html?v=19g"
     print("Visore PC:", url, flush=True)
     print("Lascia questa finestra aperta. Ctrl+C per chiudere.", flush=True)
     if "--no-browser" not in sys.argv:

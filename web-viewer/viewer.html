@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
-  <title>Casa Sicura — Visore PC 19e</title>
-  <link rel="stylesheet" href="styles.css?v=19e">
+  <title>Casa Sicura — Visore PC 19g</title>
+  <link rel="stylesheet" href="styles.css?v=19g">
   <script>
     if (location.hostname === "127.0.0.1") {
       location.replace(
@@ -19,11 +19,11 @@
 <body>
   <div id="gate" class="gate">
     <div class="gate-card">
-      <p class="eyebrow">Casa Sicura · build 19e</p>
+      <p class="eyebrow">Casa Sicura · build 19g</p>
       <h1>Visore PC</h1>
       <p class="lede">
-        Incolla lo stesso App ID Agora dei telefoni. Questo PC fa solo da visore:
-        non usa la webcam.
+        Incolla lo stesso App ID e la stessa chiave di casa dei telefoni.
+        Questo PC fa solo da visore: non usa la webcam.
       </p>
       <label for="app-id">App ID Agora</label>
       <input
@@ -35,6 +35,17 @@
       >
       <p class="agora-site">
         <a href="https://www.agora.io/" target="_blank" rel="noopener noreferrer">www.agora.io</a>
+      </p>
+      <label for="channel-key">Chiave di casa</label>
+      <input
+        id="channel-key"
+        type="password"
+        spellcheck="false"
+        autocomplete="off"
+        placeholder="8–62 caratteri, identica ai telefoni"
+      >
+      <p class="field-note">
+        Cifra video, audio e comandi. Non è l’App ID.
       </p>
       <button id="connect-btn" type="button">Connetti</button>
       <p id="gate-status" class="gate-note" hidden></p>
@@ -73,7 +84,7 @@
     </footer>
   </div>
 
-  <script src="AgoraRTC_N.js?v=19e"></script>
-  <script src="app.js?v=19e"></script>
+  <script src="AgoraRTC_N.js?v=19g"></script>
+  <script src="app.js?v=19g"></script>
 </body>
 </html>

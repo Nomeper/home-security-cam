@@ -3,6 +3,9 @@
   const CAM_UIDS = [10, 20, 30, 40, 50, 60];
   const VIEWER_UID = 101;
   const APP_ID_KEY = "hsc_agora_app_id";
+  const CHANNEL_KEY_PREF = "hsc_agora_channel_key";
+  const MIN_CHANNEL_KEY_LENGTH = 8;
+  const MAX_CHANNEL_KEY_UTF8_LENGTH = 62;
   const NAME_KEY = (uid) => `hsc_cam_name_${uid}`;
 
   const $ = (id) => document.getElementById(id);
@@ -25,6 +28,40 @@
     screen: "gate",
     videoReady: new Set(),
   };
+
+  function channelKeyUtf8Length(value) {
+    return encoder.encode(String(value || "").trim()).length;
+  }
+
+  function validateChannelKey(value) {
+    const trimmed = String(value || "").trim();
+    if (trimmed.length < MIN_CHANNEL_KEY_LENGTH) {
+      return "Inserisci almeno 8 caratteri.";
+    }
+    if (channelKeyUtf8Length(trimmed) > MAX_CHANNEL_KEY_UTF8_LENGTH) {
+      return `Massimo ${MAX_CHANNEL_KEY_UTF8_LENGTH} caratteri (limite del visore PC).`;
+    }
+    return null;
+  }
+
+  async function sha256Bytes(text) {
+    if (!window.crypto || !crypto.subtle) {
+      throw new Error(
+        "Questo browser non può cifrare. Apri Chrome o Edge su http://localhost.",
+      );
+    }
+    const data = encoder.encode(text);
+    const digest = await crypto.subtle.digest("SHA-256", data);
+    return new Uint8Array(digest);
+  }
+
+  async function deriveChannelEncryption(passphrase) {
+    const trimmed = passphrase.trim();
+    const validationError = validateChannelKey(trimmed);
+    if (validationError) throw new Error(validationError);
+    const salt = await sha256Bytes("hsc-v1-salt:" + trimmed);
+    return { key: trimmed, salt };
+  }
 
   function camName(uid) {
     return localStorage.getItem(NAME_KEY(uid)) || `CAM ${CAM_UIDS.indexOf(uid) + 1}`;
@@ -661,7 +698,7 @@
   async function ensureSdk() {
     if (typeof AgoraRTC !== "undefined") return;
     try {
-      await loadScript("AgoraRTC_N.js?v=19e", 6000);
+      await loadScript("AgoraRTC_N.js?v=19g", 6000);
     } catch (_) {
       /* sotto */
     }
@@ -687,19 +724,41 @@
     if (/UID_CONFLICT/i.test(blob)) {
       return "C’è già un visore PC connesso. Chiudi l’altra scheda e riprova.";
     }
+    if (/OperationError/i.test(blob)) {
+      return "Errore crittografia del browser. Usa Chrome o Edge su http://localhost; chiave max 62 caratteri, identica ai telefoni.";
+    }
     if (/Timeout connessione|SDK Agora non caricato/i.test(blob)) return blob;
+    if (/INVALID_PARAMS|salt must be/i.test(blob)) {
+      return "Chiave di casa non valida. Usa almeno 8 caratteri, identici ai telefoni.";
+    }
     return blob
       ? `Connessione non riuscita. ${blob}`
       : "Connessione non riuscita. Controlla App ID e internet.";
   }
 
-  async function connect(appId) {
+  async function connect(appId, channelKey) {
     dbg("connect start host=" + location.hostname);
     showGateStatus("Verifica SDK…");
     await ensureSdk();
     dbg("sdk ok AgoraRTC=" + (typeof AgoraRTC));
     AgoraRTC.setLogLevel(1);
     const client = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
+    let material;
+    try {
+      material = await deriveChannelEncryption(channelKey);
+    } catch (error) {
+      throw new Error(
+        errorText(error) ||
+          "Impossibile cifrare. Usa Chrome o Edge su http://localhost.",
+      );
+    }
+    try {
+      client.setEncryptionConfig("aes-256-gcm2", material.key, material.salt, true);
+    } catch (error) {
+      throw new Error(
+        "Cifratura non attivata. Usa Chrome o Edge su http://localhost e la stessa chiave dei telefoni.",
+      );
+    }
     client.on("user-joined", (user) => {
       const uid = Number(user.uid);
       if (!CAM_UIDS.includes(uid)) return;
@@ -813,8 +872,18 @@
       .trim()
       .replace(/[\u200B-\u200D\uFEFF]/g, "")
       .replace(/^["']|["']$/g, "");
+    const channelKey = ($("channel-key").value || "").trim();
     if (appId.length < 8) {
       showGateError("Incolla un App ID Agora valido.");
+      return;
+    }
+    if (channelKey.length < MIN_CHANNEL_KEY_LENGTH) {
+      showGateError("Inserisci la chiave di casa (almeno 8 caratteri), identica ai telefoni.");
+      return;
+    }
+    const keyError = validateChannelKey(channelKey);
+    if (keyError) {
+      showGateError(keyError);
       return;
     }
     const btn = $("connect-btn");
@@ -832,7 +901,8 @@
     }, 15000);
     try {
       localStorage.setItem(APP_ID_KEY, appId);
-      await connect(appId);
+      localStorage.setItem(CHANNEL_KEY_PREF, channelKey);
+      await connect(appId, channelKey);
       window.clearTimeout(watchdog);
       pingParent("joined");
       showScreen("live");
@@ -866,8 +936,12 @@
 
   try {
     $("app-id").value = localStorage.getItem(APP_ID_KEY) || "";
+    $("channel-key").value = localStorage.getItem(CHANNEL_KEY_PREF) || "";
     $("connect-btn").addEventListener("click", onConnect);
     $("app-id").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") onConnect();
+    });
+    $("channel-key").addEventListener("keydown", (event) => {
       if (event.key === "Enter") onConnect();
     });
     async function goToLogin() {
@@ -884,7 +958,7 @@
         "Apri il visore in Chrome o Edge, non nella finestra di Cursor. Il Simple Browser non supporta Agora/WebRTC.",
       );
     } else if (typeof AgoraRTC === "undefined") {
-      showGateError("SDK Agora mancante. Ricarica con Ctrl+F5 (build 19e).");
+      showGateError("SDK Agora mancante. Ricarica con Ctrl+F5 (build 19g).");
     }
   } catch (error) {
     console.error(error);

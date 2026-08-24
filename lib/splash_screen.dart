@@ -7,6 +7,7 @@ import 'role_selection_screen.dart';
 import 'security_page.dart';
 import 'services/device_owner_service.dart';
 import 'services/startup_permissions.dart';
+import 'channel_encryption.dart';
 import 'utils.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -31,6 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     final prefs = await SharedPreferences.getInstance();
     final appId = prefs.getString('agora_app_id');
+    final channelKey = prefs.getString(kChannelKeyPref);
     final isDeviceOwner = await DeviceOwnerService().isManagedCamera();
     if (isDeviceOwner) {
       await prefs.setString(
@@ -41,8 +43,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
     final route = AppLaunchDecision.decide(
       hasAppId: appId != null && appId.isNotEmpty,
+      hasChannelKey: isValidChannelKey(channelKey),
       isDeviceOwner: isDeviceOwner,
-      role: prefs.getString('role'),
     );
 
     if (!mounted) return;

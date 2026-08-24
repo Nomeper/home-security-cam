@@ -76,8 +76,8 @@ function Stop-OwnedListener([int]$ListenPort) {
 }
 
 if (Test-VisoreReady $prefix) {
-  Write-Host "Visore PC già in esecuzione: ${localUrl}index.html?v=19e"
-  Start-Process "${localUrl}index.html?v=19e"
+  Write-Host "Visore PC già in esecuzione: ${localUrl}index.html?v=19g"
+  Start-Process "${localUrl}index.html?v=19g"
   exit 0
 }
 
@@ -134,9 +134,9 @@ for ($attempt = 1; $attempt -le 3 -and -not $started; $attempt++) {
   }
 }
 
-Write-Host "Visore PC: ${localUrl}index.html?v=19e"
+Write-Host "Visore PC: ${localUrl}index.html?v=19g"
 Write-Host "Lascia questa finestra aperta. Ctrl+C per chiudere."
-Start-Process "${localUrl}index.html?v=19e"
+Start-Process "${localUrl}index.html?v=19g"
 
 try {
   while ($listener.IsListening) {

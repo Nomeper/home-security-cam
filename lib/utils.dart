@@ -3,8 +3,13 @@
 const String kChannelName = 'casa_sicura';
 const List<int> kCamUids = [10, 20, 30, 40, 50, 60];
 const int kViewerUid = 100;
+const int kPcViewerUid = 101;
+/// UID usati solo dalla schermata «Scegli ruolo» per vedere chi è già nel
+/// canale, senza pubblicare video e senza fingere un visore.
+const int kRoleProbeUidMin = 190;
+const int kRoleProbeUidMax = 199;
 // Visore PC in web-viewer/: UID 101. Le camere trattano qualsiasi UID
-// non-camera come visore (isRemoteViewerUid).
+// non-camera (tranne i probe) come visore (isRemoteViewerUid).
 const String kWatchCommandPrefix = 'WATCH:';
 const String kFlashCommand = 'FLASH';
 const String kFlashCommandPrefix = 'FLASH:';
@@ -68,10 +73,32 @@ int getUidFromRole(DeviceRole role) {
 
 bool isViewerUid(int uid) => uid == kViewerUid;
 
+bool isRoleProbeUid(int uid) =>
+    uid >= kRoleProbeUidMin && uid <= kRoleProbeUidMax;
+
+int randomRoleProbeUid() {
+  const span = kRoleProbeUidMax - kRoleProbeUidMin + 1;
+  return kRoleProbeUidMin + DateTime.now().microsecondsSinceEpoch % span;
+}
+
 /// In live broadcast Agora non notifica i client audience. Qualsiasi UID
 /// remoto che non è una camera viene trattato come visore (anche se Agora
-/// riassegna l’UID 100 in assenza di token).
-bool isRemoteViewerUid(int uid) => uid > 0 && !kCamUids.contains(uid);
+/// riassegna l’UID 100 in assenza di token). I probe della schermata ruoli
+/// restano fuori, così non svegliano le camere.
+bool isRemoteViewerUid(int uid) =>
+    uid > 0 && !kCamUids.contains(uid) && !isRoleProbeUid(uid);
+
+DeviceRole? roleOccupiedByUid(int uid) {
+  if (isRemoteViewerUid(uid)) return DeviceRole.viewer;
+  final cameraIndex = kCamUids.indexOf(uid);
+  if (cameraIndex < 0) return null;
+  return DeviceRole.values[cameraIndex];
+}
+
+Set<DeviceRole> occupiedRolesFromUids(Iterable<int> uids) => {
+      for (final uid in uids)
+        if (roleOccupiedByUid(uid) case final role?) role,
+    };
 
 bool isWatchCommand(String message) => message.startsWith(kWatchCommandPrefix);
 

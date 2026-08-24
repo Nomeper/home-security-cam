@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'services/background_video_service.dart';
 import 'services/device_owner_service.dart';
+import 'channel_encryption.dart';
 import 'utils.dart';
 import 'role_selection_screen.dart';
 
@@ -43,6 +44,7 @@ class _SecurityPageState extends State<SecurityPage>
   final Set<int> _presentViewerUids = {};
   bool _wantViewerChannel = true;
   int _viewerApplyId = 0;
+  int _viewerRestoreId = 0;
   Future<void> _viewerChannelQueue = Future.value();
 
   // Mappa per la qualità della rete (0: Sconosciuto, 1-2: Ottima, 3: Media, 4-6: Pessima)
@@ -205,8 +207,15 @@ class _SecurityPageState extends State<SecurityPage>
     try {
       final prefs = await SharedPreferences.getInstance();
       final appId = prefs.getString('agora_app_id');
+      final channelKey = prefs.getString(kChannelKeyPref);
       if (appId == null || appId.isEmpty) {
         throw StateError('Inserisci l’Agora App ID prima di avviare.');
+      }
+      if (!isValidChannelKey(channelKey)) {
+        throw StateError(
+          validateChannelKey(channelKey) ??
+              'Inserisci la chiave di casa. Deve essere identica su visore, camere e PC.',
+        );
       }
       if (!mounted) return;
       _channelId = kChannelName;
@@ -218,6 +227,8 @@ class _SecurityPageState extends State<SecurityPage>
         channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
       ));
       if (!mounted) return;
+
+      await enableChannelEncryption(_engine, channelKey!);
 
       _engine.registerEventHandler(
         RtcEngineEventHandler(
@@ -233,6 +244,7 @@ class _SecurityPageState extends State<SecurityPage>
             if (!mounted) return;
             _viewerHeartbeatTimer?.cancel();
             _viewerPresenceTimer?.cancel();
+            _streamId = null;
             setState(() {
               _isJoined = false;
               _activeCameras.clear();
@@ -323,9 +335,7 @@ class _SecurityPageState extends State<SecurityPage>
               if (isCamera) {
                 unawaited(_syncCameraPublication());
               } else {
-                unawaited(_requestCameraStatus());
-                unawaited(_broadcastWatchSelection());
-                unawaited(_syncViewerVideoSubscriptions());
+                unawaited(_restoreViewerSession());
               }
             }
           },
@@ -334,6 +344,15 @@ class _SecurityPageState extends State<SecurityPage>
             if (mounted) {
               setState(() => _networkQuality[remoteUid] = rxQuality.value());
             }
+          },
+          onEncryptionError: (connection, errorType) {
+            debugPrint('Channel encryption error: $errorType');
+            if (!mounted) return;
+            setState(() {
+              _initializationError =
+                  'Chiave di casa diversa da un altro dispositivo, oppure cifratura non attiva su tutti. '
+                  'Usa la stessa chiave su visore, camere e PC.';
+            });
           },
           onStreamMessage:
               (connection, remoteUid, streamId, data, length, sentTs) {
@@ -385,7 +404,7 @@ class _SecurityPageState extends State<SecurityPage>
         _isReady = false;
         _initializationError = e is StateError
             ? e.message.toString()
-            : 'Impossibile avviare. Verifica App ID, rete e progetto Agora senza token.';
+            : 'Impossibile avviare. Verifica App ID, chiave di casa, rete e progetto Agora senza token.';
       });
     }
   }
@@ -454,11 +473,8 @@ class _SecurityPageState extends State<SecurityPage>
       await _startBatteryReporting();
       return;
     }
-    _startViewerHeartbeat();
     await _engine.muteAllRemoteAudioStreams(true);
-    await _requestCameraStatus();
-    await _broadcastWatchSelection();
-    await _syncViewerVideoSubscriptions();
+    await _restoreViewerSession();
   }
 
   void _setRemoteVideoReady(int uid, bool ready) {
@@ -691,6 +707,24 @@ class _SecurityPageState extends State<SecurityPage>
     } catch (error) {
       debugPrint('Viewer leave signal failed: $error');
     }
+  }
+
+  Future<void> _leaveToRoleSelection() async {
+    _wantViewerChannel = false;
+    _viewerApplyId++;
+    if (_viewerMicOn && _engineCreated) {
+      await _setViewerMic(false);
+    }
+    if (_engineCreated) {
+      final engine = _engine;
+      final sendViewerLeave = !isCamera;
+      _engineCreated = false;
+      await _shutdownRtcEngine(engine, sendViewerLeave: sendViewerLeave);
+    }
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
+    );
   }
 
   Future<void> _shutdownRtcEngine(
@@ -1030,14 +1064,62 @@ class _SecurityPageState extends State<SecurityPage>
     }
   }
 
+  /// Resta nel canale Agora: uscire e rientrare rompe data stream, batteria
+  /// e subscribe. In background si ferma solo l'heartbeat; al ritorno si
+  /// ricreano le SurfaceView e si rinviano WATCH/BATTREQ.
   Future<void> _pauseViewerSession() async {
-    _wantViewerChannel = false;
-    _scheduleViewerChannelApply();
+    if (isCamera) return;
+    _stopViewerHeartbeat();
+    // Spegne le camere senza uscire dal canale: così al ritorno restano
+    // batteria, elenco cam e selezione, e WATCH le riaccende.
+    try {
+      await _sendChannelMessage(encodeWatchCommand(const <int>{}));
+    } catch (error) {
+      debugPrint('Viewer pause watch failed: $error');
+    }
   }
 
   Future<void> _resumeViewerSession() async {
+    if (isCamera || !_engineCreated) return;
     _wantViewerChannel = true;
-    _scheduleViewerChannelApply();
+    if (!_isJoined) {
+      _scheduleViewerChannelApply();
+      return;
+    }
+    await _restoreViewerSession(bumpVideoViews: true);
+  }
+
+  Future<void> _restoreViewerSession({bool bumpVideoViews = false}) async {
+    if (isCamera || !_engineCreated || !_isJoined) return;
+    final id = ++_viewerRestoreId;
+    if (bumpVideoViews && mounted) {
+      setState(() {
+        for (final uid in {..._selectedViewUids, ..._activeCameras}) {
+          _remoteVideoViewGen[uid] = (_remoteVideoViewGen[uid] ?? 0) + 1;
+          _remoteVideoReady.remove(uid);
+        }
+      });
+    }
+    await _ensureDataStream();
+    if (!mounted || id != _viewerRestoreId || !_isJoined) return;
+    _startViewerHeartbeat();
+    Future<void> pulse() async {
+      if (!mounted ||
+          isCamera ||
+          !_engineCreated ||
+          !_isJoined ||
+          id != _viewerRestoreId) {
+        return;
+      }
+      await _requestCameraStatus();
+      await _broadcastWatchSelection();
+      await _syncViewerVideoSubscriptions();
+    }
+
+    await pulse();
+    for (final ms in [400, 1200]) {
+      Future<void>.delayed(Duration(milliseconds: ms), pulse);
+    }
   }
 
   void _scheduleViewerChannelApply() {
@@ -1049,6 +1131,10 @@ class _SecurityPageState extends State<SecurityPage>
       try {
         if (_wantViewerChannel) {
           if (!_isReady) return;
+          if (_isJoined) {
+            await _restoreViewerSession(bumpVideoViews: true);
+            return;
+          }
           await _joinRtcChannel();
         } else {
           _stopViewerHeartbeat();
@@ -1058,7 +1144,11 @@ class _SecurityPageState extends State<SecurityPage>
       } catch (error) {
         debugPrint('Viewer channel apply failed: $error');
         if (_wantViewerChannel && mounted && id == _viewerApplyId) {
-          _showMediaError('Impossibile riprendere il monitoraggio.');
+          try {
+            await _retryInitialization();
+          } catch (_) {
+            _showMediaError('Impossibile riprendere il monitoraggio.');
+          }
         }
       }
     });
@@ -1781,9 +1871,7 @@ class _SecurityPageState extends State<SecurityPage>
               ),
               IconButton(
                 icon: const Icon(Icons.logout, color: Colors.white70),
-                onPressed: () => Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                        builder: (_) => const RoleSelectionScreen())),
+                onPressed: () => unawaited(_leaveToRoleSelection()),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 14, right: 8),

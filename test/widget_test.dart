@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:home_security_cam/app_launch.dart';
+import 'package:home_security_cam/channel_encryption.dart';
 import 'package:home_security_cam/services/startup_permissions.dart';
 import 'package:home_security_cam/utils.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -62,6 +63,29 @@ void main() {
       expect(isRemoteViewerUid(12345), isTrue);
       expect(isRemoteViewerUid(kCamUids.first), isFalse);
       expect(isRemoteViewerUid(0), isFalse);
+      expect(isRemoteViewerUid(kPcViewerUid), isTrue);
+      expect(isRemoteViewerUid(kRoleProbeUidMin), isFalse);
+      expect(isRemoteViewerUid(kRoleProbeUidMax), isFalse);
+      expect(isRoleProbeUid(195), isTrue);
+      expect(isRoleProbeUid(kViewerUid), isFalse);
+    });
+
+    test('occupies CAM and visor roles from live channel UIDs', () {
+      expect(roleOccupiedByUid(10), DeviceRole.camera1);
+      expect(roleOccupiedByUid(60), DeviceRole.camera6);
+      expect(roleOccupiedByUid(kViewerUid), DeviceRole.viewer);
+      expect(roleOccupiedByUid(kPcViewerUid), DeviceRole.viewer);
+      expect(roleOccupiedByUid(12345), DeviceRole.viewer);
+      expect(roleOccupiedByUid(195), isNull);
+      expect(
+        occupiedRolesFromUids({10, 100, 199}),
+        {DeviceRole.camera1, DeviceRole.viewer},
+      );
+      expect(
+        occupiedRolesFromUids({101, 20, 30}),
+        {DeviceRole.viewer, DeviceRole.camera2, DeviceRole.camera3},
+      );
+      expect(occupiedRolesFromUids({199}), isEmpty);
     });
   });
 
@@ -244,32 +268,75 @@ void main() {
       expect(
         AppLaunchDecision.decide(
           hasAppId: false,
+          hasChannelKey: false,
           isDeviceOwner: false,
-          role: null,
         ),
         AppLaunchRoute.appId,
       );
     });
 
-    test('Device Owner skips role selection after App ID', () {
+    test('asks for the house key even if App ID is already saved', () {
       expect(
         AppLaunchDecision.decide(
           hasAppId: true,
+          hasChannelKey: false,
+          isDeviceOwner: false,
+        ),
+        AppLaunchRoute.appId,
+      );
+    });
+
+    test('Device Owner skips role selection after App ID and house key', () {
+      expect(
+        AppLaunchDecision.decide(
+          hasAppId: true,
+          hasChannelKey: true,
           isDeviceOwner: true,
-          role: null,
         ),
         AppLaunchRoute.security,
       );
     });
 
-    test('viewer phones still choose a role', () {
+    test('phones always open on role selection, even with a saved visor role',
+        () {
       expect(
         AppLaunchDecision.decide(
           hasAppId: true,
+          hasChannelKey: true,
           isDeviceOwner: false,
-          role: null,
         ),
         AppLaunchRoute.roleSelection,
+      );
+    });
+  });
+
+  group('Channel encryption', () {
+    test('rejects short or overlong house keys', () {
+      expect(isValidChannelKey(null), isFalse);
+      expect(isValidChannelKey(''), isFalse);
+      expect(isValidChannelKey('1234567'), isFalse);
+      expect(isValidChannelKey('  casa12 '), isFalse);
+      expect(isValidChannelKey('casa1234'), isTrue);
+      expect(isValidChannelKey('a' * 63), isFalse);
+      expect(isValidChannelKey('a' * 62), isTrue);
+    });
+
+    test('uses the passphrase as key and derives a 32-byte salt', () {
+      final material = deriveChannelEncryption('casa1234');
+      expect(material.key, 'casa1234');
+      expect(material.salt.length, 32);
+      expect(
+        material.salt
+            .map((b) => b.toRadixString(16).padLeft(2, '0'))
+            .join(),
+        'aebafee0f112c8dcb51285a012b56445b39e6dbe239f64e463a1e6c738831d45',
+      );
+    });
+
+    test('trims the passphrase before use', () {
+      expect(
+        deriveChannelEncryption('  casa1234  ').key,
+        'casa1234',
       );
     });
   });

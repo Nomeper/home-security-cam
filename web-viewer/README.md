@@ -4,20 +4,20 @@ Pagina locale per guardare le telecamere Android dal computer. Non è un’app F
 
 ## Cosa fa
 
-- Chiede solo l’**App ID Agora** (lo stesso dei telefoni). Sotto il campo c’è il link `www.agora.io`.
-- Entra nel canale `casa_sicura` come visore (host silenzioso, UID **101**).
+- Chiede l’**App ID Agora** e la **chiave di casa** (gli stessi dei telefoni). Sotto l’App ID c’è il link `www.agora.io`.
+- Entra nel canale `casa_sicura` come visore (host silenzioso, UID **101**), con cifratura AES-256-GCM2.
 - Non accende la webcam del PC.
 - Tocca CAM 1–6 per chiedere il video (`WATCH:`). Batteria, flash, audio, lente (frontale/posteriore) e «Parla» come sul telefono visore.
 - Flash sulla CAM frontale: lo schermo del telefono diventa bianco a piena luminosità.
 
-Build attuale: **19e**.
+Build attuale: **19g**.
 
 ## Avvio su Windows
 
 1. Chiudi il visore sull’app Android (telefono). Due visori insieme si pestano i comandi WATCH.
 2. Chiudi l’eventuale finestra nera di un visore PC già aperto, poi doppio clic su `avvia.bat`.
 3. Si apre **`http://localhost:8787/`** nel browser (Chrome o Edge). Agora non funziona su `127.0.0.1`.
-4. Incolla l’App ID e premi **Connetti**.
+4. Incolla App ID e chiave di casa, poi premi **Connetti**.
 
 Se la porta 8787 è già occupata da un avvio precedente (anche un `python -m http.server` rimasto appeso), lo script la libera e riparte. Se il visore è già in ascolto, apre solo il browser.
 
@@ -42,7 +42,7 @@ Non aprire `index.html` con doppio clic (`file://`): WebRTC di Agora richiede `h
 ## Requisiti
 
 - Progetto Agora in modalità Testing **senza token**, come in [AGORA_SETUP.md](../AGORA_SETUP.md).
-- Telecamere con APK **1.0.1+18** (o più nuovo).
+- Telecamere con APK **1.0.1+19** (o più nuovo), stessa chiave di casa.
 - Internet. L’SDK Agora è il file locale `AgoraRTC_N.js`.
 
 ## Note

@@ -13,8 +13,8 @@ OUT = Path(__file__).resolve().parent / "Manuale_uso_Casa_Sicura.pdf"
 
 FONTS = Path(r"C:\Windows\Fonts")
 VERSION = "1.0.1"
-BUILD = "18"
-WEB_BUILD = "19e"
+BUILD = "19"
+WEB_BUILD = "19f"
 
 NAVY = (11, 18, 32)
 NAVY_2 = (17, 28, 48)
@@ -380,7 +380,7 @@ def build() -> Path:
         "Guida rapida",
         "1) Crea un progetto Agora di test e copia l’App ID.  "
         "2) Installa la stessa app su visore e telecamere.  "
-        "3) Incolla l’App ID e scegli i ruoli (un visore, CAM 1–6 univoche).  "
+        "3) Incolla l’App ID, la chiave di casa e scegli i ruoli (un visore, CAM 1–6 univoche).  "
         "4) Sul visore tocca le CAM da vedere — oppure sul PC doppio clic su avvia.bat.  "
         "5) Un visore alla volta: telefono oppure computer, non entrambi.",
     )
@@ -412,7 +412,7 @@ def build() -> Path:
             "non installano l’APK.",
             "Android 6 o successivo, fotocamera e microfono funzionanti, connessione "
             "a internet (Wi‑Fi o dati).",
-            "L’APK Casa Sicura versione 1.0.1 build 18 o successiva, la stessa su "
+            "L’APK Casa Sicura versione 1.0.1 build 19 o successiva, la stessa su "
             "visore e su tutte le telecamere.",
         ]
     )
@@ -423,7 +423,7 @@ def build() -> Path:
             "alza un piccolo server locale).",
             "Chrome o Edge. Non usare la finestra browser interna di Cursor: WebRTC "
             "lì non funziona.",
-            "Stesso App ID Agora dei telefoni. Il PC non usa la webcam: è solo un visore.",
+            "Stesso App ID Agora e stessa chiave di casa dei telefoni. Il PC non usa la webcam: è solo un visore.",
         ]
     )
     pdf.h2("Account Agora")
@@ -434,8 +434,8 @@ def build() -> Path:
     )
     pdf.kv_table(
         [
-            ("App", "Casa Sicura 1.0.1 (build 18)"),
-            ("Visore PC", "web-viewer, build 19e"),
+            ("App", "Casa Sicura 1.0.1 (build 19)"),
+            ("Visore PC", "web-viewer, build 19f"),
             ("Canale video", "casa_sicura (fisso, non lo scrivi tu sull’app)"),
             ("Telecamere", "Fino a 6, ruoli CAM 1 … CAM 6"),
             ("Backend proprio", "Nessuno"),
@@ -465,6 +465,8 @@ def build() -> Path:
             "di casa: chi la possiede può entrare nel tuo canale.",
             "Lascia disabilitata l’App Certificate. Se la attivi, l’app attuale "
             "(token vuoto) non entra più.",
+            "Scegli una chiave di casa (almeno 8 caratteri) e usala identica su "
+            "ogni telefono e sul visore PC. Non è l’App ID: la inventi tu.",
         ]
     )
     pdf.callout(
@@ -525,14 +527,15 @@ def build() -> Path:
     pdf.chapter("5. Configurazione iniziale")
     pdf.h2("Schermata «Configurazione iniziale»")
     pdf.p(
-        "Dopo lo splash (icona scudo su sfondo nero) compare il campo App ID. "
-        "Incolla il codice Agora e premi SALVA E CONTINUA. Il pulsante si attiva "
-        "quando il testo è abbastanza lungo; l’icona di incolla sulla destra legge "
-        "gli appunti."
+        "Dopo lo splash (icona scudo su sfondo nero) comparono App ID e chiave di casa. "
+        "Incolla il codice Agora, scegli una chiave di almeno 8 caratteri (la stessa "
+        "su ogni telefono e sul PC) e premi SALVA E CONTINUA. Il pulsante si attiva "
+        "quando entrambi i campi sono abbastanza lunghi; l’icona di incolla sulla destra "
+        "legge gli appunti per l’App ID."
     )
     pdf.p(
-        "Il codice resta salvato sul telefono. Non devi reinserirlo a ogni avvio, "
-        "a meno che non usi «Reimposta App ID e ruolo»."
+        "App ID e chiave restano salvati sul telefono. Non devi reinserirli a ogni avvio, "
+        "a meno che non usi «Reimposta App ID, chiave e ruolo»."
     )
     pdf.h2("Schermata «Scegli Ruolo»")
     pdf.p("Qui decidi a cosa serve quel telefono.")
@@ -540,7 +543,7 @@ def build() -> Path:
         [
             ("VISORE", "Monitora le telecamere in tempo reale. Un solo visore in casa."),
             ("CAM 1 … CAM 6", "Quel telefono diventa quella telecamera. Ogni numero una sola volta."),
-            ("Reimposta App ID e ruolo", "Cancella codice Agora, ruolo e nomi camere salvati su quel telefono."),
+            ("Reimposta App ID, chiave e ruolo", "Cancella codice Agora, chiave di casa, ruolo e nomi camere salvati su quel telefono."),
         ]
     )
     pdf.callout(
@@ -692,7 +695,7 @@ def build() -> Path:
     pdf.chapter("8. Il visore sul computer (webapp)")
     pdf.p(
         "Il visore PC non è l’app Flutter nel browser: è una pagina locale nella "
-        "cartella web-viewer. Usa lo stesso App ID, lo stesso canale e gli stessi "
+        "cartella web-viewer. Usa lo stesso App ID, la stessa chiave di casa, lo stesso canale e gli stessi "
         "comandi dell’app. Il computer non pubblica la propria webcam."
     )
     pdf.h2("Avvio su Windows")
@@ -702,7 +705,7 @@ def build() -> Path:
             "Chiudi l’eventuale finestra nera di un visore PC già avviato.",
             "Doppio clic su web-viewer\\avvia.bat.",
             "Si apre Chrome o Edge su http://localhost:8787/ (non su 127.0.0.1).",
-            "Incolla l’App ID e premi Connetti.",
+            "Incolla l’App ID, la chiave di casa e premi Connetti.",
         ]
     )
     pdf.p(
@@ -733,7 +736,7 @@ def build() -> Path:
     )
     pdf.h2("Schermata di ingresso")
     pdf.p(
-        "Titolo «Visore PC», campo App ID Agora, link www.agora.io, pulsante Connetti. "
+        "Titolo «Visore PC», campi App ID Agora e chiave di casa, link www.agora.io, pulsante Connetti. "
         "Sotto è ricordato il canale fisso casa_sicura e l’invito a chiudere il visore "
         "sul telefono. Se il join si blocca oltre dieci secondi compare un avviso "
         "«Agora non risponde» con Riprova."
@@ -820,7 +823,7 @@ def build() -> Path:
             "Durante la configurazione iniziale, tocca sei volte la schermata e inquadra "
             "il QR (provisioning-qr.png) a schermo intero sul PC.",
             "Serve rete mentre scarica l’APK indicato nel QR.",
-            "Alla fine inserisci lo stesso App ID Agora del visore.",
+            "Alla fine inserisci lo stesso App ID Agora e la stessa chiave di casa del visore.",
         ]
     )
     pdf.callout(
@@ -851,8 +854,8 @@ def build() -> Path:
             "di quella CAM.",
             "«Parla» usa il microfono del visore (o del browser) e solo verso le "
             "camere selezionate.",
-            "Chi conosce il tuo App ID e sa che il canale è casa_sicura può tentare "
-            "di entrare. Non pubblicare l’App ID, non lasciarlo in foto o in chat.",
+            "Chi ha App ID e canale casa_sicura, ma non la chiave di casa, non decifra "
+            "video né comandi. Non pubblicare App ID né chiave.",
             "L’app non usa un tuo account cloud: non c’è un pannello web aziendale "
             "da cui “spegnere” i telefoni. Il controllo è locale, sui dispositivi.",
             "Rispetta le persone in casa: avvisa se una stanza è ripresa, soprattutto "
@@ -868,7 +871,8 @@ def build() -> Path:
     pdf.chapter("12. Problemi frequenti")
     pdf.kv_table(
         [
-            ("Niente video", "Stesso App ID? Telecamere e visore online? Hai toccato la CAM nel dock? Un solo visore aperto?"),
+            ("Niente video", "Stesso App ID e stessa chiave? Telecamere e visore online? Hai toccato la CAM nel dock? Un solo visore aperto?"),
+            ("Schermo nero dopo Connetti", "Chiave di casa diversa da un telefono. Reinseriscila identica su tutti."),
             ("Join fermo sul PC", "Apri Chrome/Edge su localhost, non Cursor e non 127.0.0.1. Premi Riprova se compare il banner."),
             ("file:// non va", "Non aprire l’HTML con doppio clic. Usa avvia.bat."),
             ("Installazione rifiutata", "Telefono 32 bit, o origini sconosciute disattivate. Serve Android 64 bit."),
@@ -885,7 +889,7 @@ def build() -> Path:
     pdf.h2("Checklist di una sessione ok")
     pdf.numbered(
         [
-            "Stesso App ID Agora (progetto Testing senza token) su ogni telefono e sul PC.",
+            "Stesso App ID Agora e stessa chiave di casa su ogni telefono e sul PC.",
             "APK aggiornato su visore e su tutte le CAM.",
             "Ogni telecamera un ruolo diverso (CAM 1–6).",
             "Un solo visore aperto.",
@@ -911,7 +915,7 @@ def build() -> Path:
     pdf.callout(
         "info",
         "In sintesi",
-        "Prepara l’App ID, installa la stessa app su visore e camere, scegli i ruoli, "
+        "Prepara l’App ID e la chiave di casa, installa la stessa app su visore e camere, scegli i ruoli, "
         "apri un solo visore (telefono o avvia.bat sul PC) e tocca le CAM che vuoi "
         "vedere. Flash, audio, lente e Parla stanno nel dock. Sulla telecamera, Eco "
         "nasconde lo schermo; lo standby spegne sensore e display quando nessuno guarda.",
@@ -922,7 +926,7 @@ def build() -> Path:
     pdf.multi_cell(
         0,
         5.2,
-        "Manuale riferito all’app 1.0.1 build 18 e al visore PC 19e. "
+        "Manuale riferito all’app 1.0.1 build 19 e al visore PC 19f. "
         "Uso personale in ambito domestico. Non contiene password, App ID di esempio "
         "reali né istruzioni per accedere a dispositivi altrui.",
     )

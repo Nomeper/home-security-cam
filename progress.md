@@ -3,40 +3,94 @@
 > Memoria a lungo termine per Cursor. All’inizio di ogni chat nuova: `@progress.md` → «Parti da qui».
 > Aggiornare **dopo ogni modifica significativa** (e a fine sessione).
 
-## Ultimo aggiornamento: 2026-08-20 (GitHub Release v1.0.1-18)
+## Ultimo aggiornamento: 2026-08-24
 
-- **Progetto:** Applicazione Flutter Android per telecamera di sicurezza domestica (Agora RTC) + visore PC statico.
-- **Branch:** main
-- **Working tree:** da allineare con release GitHub e QR Device Owner.
+- **APK corrente:** `home-security-cam-1.0.1+23-local.apk` (**119.6 MB**, versionCode 23). SHA-256 `3092B36E53C54389959DC9B6544151F869F07CCC228ED99A62CDDEB9D45F6D06`. La +22 è stata eliminata.
+- **Branch:** `main` (allineato a `origin/main` sui commit). **Ultimo commit:** `ce37c61` — Device Owner QR/docs su GitHub Release v1.0.1-18.
+- **Working tree non committato:** cifratura canale, occupancy ruoli, visore PC **19g**, resume visore da background, picker ruoli, avvio su «Scegli Ruolo», APK +23, README/docs. File nuovi: `lib/channel_encryption.dart`, `lib/services/role_occupancy_probe.dart`.
+- **In questa APK:** avvio sempre su «Scegli Ruolo» (niente ingresso automatico come visore); layout picker fisso; visore in background tiene il canale.
 
-## Parti da qui (2026-08-20, GitHub allineato)
+## Parti da qui (2026-08-24)
 
-- Installare **[home-security-cam-1.0.1-18.apk](https://github.com/Nomeper/home-security-cam/releases/tag/v1.0.1-18)** su visore e **tutte** le camere. **Solo ARM 64-bit**.
-- Release GitHub: https://github.com/Nomeper/home-security-cam/releases/tag/v1.0.1-18 (~120 MB).
-- QR Device Owner aggiornato a questa APK (`device-owner/provisioning-qr.png`). Non usare v1.0.0 / v1.0.1.
-- Flash frontale: schermo bianco a luminosità max. Link `www.agora.io` sotto l’App ID.
-- Visore PC: `web-viewer/avvia.bat` → `http://localhost:8787/index.html?v=19e`.
-- Manuale PDF: `docs/Manuale_uso_Casa_Sicura.pdf`.
+- Installare **`home-security-cam-1.0.1+23-local.apk`** su visore e **tutte** le camere (sostituisce la +22 e precedenti).
+- Test avvio telefono (non Device Owner): dopo splash → **Scegli Ruolo**, mai ingresso automatico come VISORE.
+- Test picker: bottoni e «Controllo chi è già nel canale…» **non si spostano** (slot fisso; il testo si nasconde senza chiudere lo spazio).
+- Test visore: Home → ritorno in app → percentuale batteria delle cam ancora visibile; la cam che stavi guardando si rivede (o un tap la riaccende). Uscire/rientrare da VISORE resta il fallback.
+- Visore PC: `web-viewer/avvia.bat` → build **19g** (`http://localhost:8787/index.html?v=19g`). Ctrl+F5 se la pagina era già aperta.
+- Chiave di casa: **8–62 caratteri**, identica su telefoni e PC (non l’App ID).
+- QR kiosk: `device-owner/provisioning-qr.png` punta ancora a **v1.0.1-18** (senza cifratura né fix recenti).
+- Manuale: `docs/Manuale_uso_Casa_Sicura.pdf`.
+- Codice locale **non committato** / **non su GitHub**.
 
 ## Panoramica tecnica
 
 | Area | Dettaglio |
 |------|-----------|
 | Stack | Flutter/Dart Android; visore PC = HTML in `web-viewer/` (Agora Web SDK 4.24) |
-| Versione app | `1.0.1+18` (`pubspec.yaml`) — APK locale **1.0.1+18** |
-| Streaming | App ID Agora locale, token vuoto, canale `casa_sicura`, UID fissi (CAM 10–60, visore telefono 100, visore PC 101) |
+| Versione app | `1.0.1+23` (`pubspec.yaml`) — APK locale **1.0.1+23** |
+| Streaming | App ID Agora locale, token vuoto, canale `casa_sicura`, UID fissi (CAM 10–60, visore telefono 100, visore PC 101). Probe ruoli: UID 190–199 (non svegliano le camere) |
+| Cifratura | Agora AES-256-GCM2 + data stream. Chiave di casa **in chiaro** (8–62 caratteri) + salt SHA-256. Stessa chiave su tutti i dispositivi. |
+| Occupancy ruoli | «Scegli ruolo»: probe senza pubblicare (UID 190–199). CAM occupata = UID 10–60; VISORE = 100, 101 o altro visore. Occupato = stesso bottone **grigio**, senza testo extra. Griglia CAM 2×3 fissa; «Controllo chi è già nel canale…» in uno **slot alto 24 px** (si nasconde senza spostare nulla). Refresh a ogni ingresso (`_refreshOccupancy`) e dopo uscita visore (`_leaveToRoleSelection`). |
+| Avvio app | Dopo App ID + chiave, i telefoni vanno **sempre** su «Scegli Ruolo» (il ruolo salvato non viene più ripristinato). Solo Device Owner (kiosk) entra diretto come CAM 1. |
 | Ruolo visore | Host **senza** pubblicazione video/microfono (non audience). In Live Broadcast l’audience non genera `onUserJoined` e non può inviare data stream |
 | On-demand | Le camere restano nel canale **senza** accendere il sensore. Il visore invia `WATCH:`; solo le camere scelte accendono la fotocamera e pubblicano. All’uscita del visore il sensore si spegne |
 | Comandi data stream | `WATCH:`, `BATT:` / `BATTREQ`, `FLASH:uid:ON\|OFF`, `FLASHSTATE:`, `LISTEN:uid:ON\|OFF`, `LENS:uid:FRONT\|REAR`, `LENSSTATE:`, `BYE` (visore esce) |
 | UI visore telefono | Tap: menu sopra+sotto appaiono e restano; altro tap: spariscono. Video sempre a schermo intero sotto. Pallino in alto a destra: verde = dati in transito, rosso = no. Dock: flash, audio, **lente**. |
-| Visore PC | `web-viewer/avvia.bat` → `http://localhost:8787/` (build **19e**). Login App ID con link `www.agora.io`, poi griglia + dock CAM in diretta (come l’app). Bottone **Post/Front** accanto a Flash e Audio. Pallino verde solo con frame video. Video `contain` portrait/landscape. Agora Web non accetta `127.0.0.1`. Non usare il Simple Browser di Cursor. |
+| Visore in background | Resta nel canale (niente `BYE`/`leaveChannel`). In pausa: heartbeat off + `WATCH:` vuoto. Al ritorno: ricrea SurfaceView, rinvia `WATCH:` / `BATTREQ`. Se Agora è caduto, rientra nel canale. |
+| Visore PC | `web-viewer/avvia.bat` → `http://localhost:8787/` (build **19g**). Login App ID + chiave di casa (8–62 car.), link `www.agora.io`, poi griglia + dock CAM. Agora Web non accetta `127.0.0.1`. Non usare il Simple Browser di Cursor. |
 | ECO | Premendo Eco l’app va subito a nero (niente menu, niente pallino dell’app, niente preview locale). Il visore continua a vedere. Il **pallino verde di Android** (fotocamera in uso, Android 12+) può restare visibile finché il pannello è acceso: in Eco il sensore è acceso. Nello STANDBY a 0s il sensore è spento, quindi quel pallino non c’è. Doppio tocco per uscire (se spento: tasto accensione, poi 15 s per il doppio tocco). |
 | Flash | Posteriore: LED torcia. Frontale: overlay bianco a luminosità 100%; spegnendo torna Eco o normale. Stesso comando `FLASH:` dal visore. |
 | Batteria standby | Camera in attesa: countdown 15 s a luminosità di sistema. A 0s overlay nero e luminosità 0. In kiosk prova spegnimento pannello. Un tocco in STANDBY fa ripartire il conteggio. |
 | Batteria visore | All’ingresso del visore: `BATTREQ` → ogni camera già attiva rinvia `BATT:` |
 | Backend | Nessuno. Firebase / Cloud Functions non usati |
 | Device Owner | QR kiosk sulla telecamera dedicata; visore = APK sul telefono quotidiano |
-| APK locale / GitHub | `home-security-cam-1.0.1+18-local.apk` e Release **[v1.0.1-18](https://github.com/Nomeper/home-security-cam/releases/tag/v1.0.1-18)** (~120 MB). SHA-256 `B2EA23D92B87D420003199D97C975FCB466C56DD0D21108D2F19C242245D949B`. ABI: `arm64-v8a` + `x86_64`. |
+| APK locale / GitHub | `home-security-cam-1.0.1+23-local.apk` (**119.6 MB**). SHA-256 `3092B36E53C54389959DC9B6544151F869F07CCC228ED99A62CDDEB9D45F6D06`. ABI: `arm64-v8a` + `x86_64`. Release GitHub **v1.0.1-18** obsoleta. |
+
+## Completato (sessione 2026-08-24, APK 23)
+
+- APK **`home-security-cam-1.0.1+23-local.apk`** (119.6 MB, avvio su «Scegli Ruolo» + layout picker fisso). La +22 eliminata.
+
+## Completato (sessione 2026-08-24, avvio Scegli Ruolo + layout fisso)
+
+- All’apertura dell’app (telefono, non kiosk) la prima pagina è **Scegli Ruolo**: non si entra più da soli come VISORE se quel ruolo era salvato.
+- Picker: bottoni in posizione fissa (griglia CAM 2×3, niente Wrap/scroll). Il messaggio «Controllo chi è già nel canale…» ha uno slot riservato e non sposta VISORE, CAM né «Reimposta».
+- Incluso in APK **+23**; codice **non committato**.
+
+## Completato (sessione 2026-08-22, APK 22)
+
+- APK **`home-security-cam-1.0.1+22-local.apk`** (119.6 MB, visore in background + picker ruoli). La +21 eliminata.
+
+## Completato (sessione 2026-08-22, visore background + picker)
+
+- Visore in background: **non** esce più dal canale Agora (niente `BYE`/`leaveChannel`). Al ritorno ricrea le SurfaceView, rinvia `WATCH:` / `BATTREQ` (subito e a 400/1200 ms). Se la connessione è caduta, rientra nel canale; se il join fallisce, reinizializza l’engine.
+- «Scegli Ruolo»: bottoni occupati grigi con lo **stesso testo** di prima (niente «già in uso» / «in uso»). Messaggio occupancy **sotto** i bottoni, che restano fissi.
+- Incluso in APK **+22**; codice **non committato**.
+
+## Completato (sessione 2026-08-20, APK 21)
+
+- APK **`home-security-cam-1.0.1+21-local.apk`** (119.6 MB, fix occupancy al ritorno da visore). La +20 eliminata.
+
+## Completato (sessione 2026-08-20, fix occupancy al ritorno)
+
+- Uscita da VISORE/CAM verso «Scegli Ruolo»: shutdown RTC **completato** prima della navigazione (`_leaveToRoleSelection`).
+- `RoleSelectionScreen`: `_refreshOccupancy()` a ogni ingresso (stop probe, pausa 450 ms, nuovo probe con session id).
+- Probe: re-emit occupazione a 0/400/900/1600 ms dopo join (cattura utenti già presenti).
+
+## Completato (sessione 2026-08-20, fix visore PC + APK 20)
+
+- Fix `OperationError` visore Web: la chiave non va più hashata in hex (64 caratteri superavano il limite RSA di Agora). Ora si usa la passphrase diretta (max 62 caratteri UTF-8), stesso salt SHA-256.
+- Visore PC **19g**. APK **1.0.1+20** (`home-security-cam-1.0.1+20-local.apk`). La +19 eliminata.
+
+## Completato (sessione 2026-08-20, cifratura canale)
+
+- Agora built-in encryption AES-256-GCM2 su app e visore PC, anche data stream (`WATCH:`, flash, lente, batteria).
+- Campo «Chiave di casa» (8–62 caratteri) sulla prima pagina app e sul login PC.
+
+## Completato (sessione 2026-08-20, ruoli occupati)
+
+- `RoleSelectionScreen` entra nel canale senza pubblicare e grigia CAM 1–6 e VISORE già connessi («già in uso» / «in uso»). Se l’occupante esce, il ruolo torna selezionabile.
+- VISORE occupato da UID 100, 101 o qualsiasi altro visore remoto; CAM da 10–60. Probe 190–199 esclusi da `isRemoteViewerUid` (le camere non li scambiano per visori).
+- File: `lib/services/role_occupancy_probe.dart`, `lib/role_selection_screen.dart`, `lib/security_page.dart`, `lib/utils.dart`. Test occupancy in `test/widget_test.dart`. Incluso in APK **+21**; codice **non committato**.
 
 ## Completato (sessione 2026-08-20, manuale d'uso PDF)
 
@@ -54,14 +108,14 @@
 
 - Tolte le estensioni Agora non usate (vision, lip-sync, spatial audio, AV1, face/screen capture, beauty, AINS, AEC AI, VQA, ecc.) e il modulo screen-sharing.
 - Tolto ARM 32-bit (`armeabi-v7a`). Restano `arm64-v8a` (telefoni) e `x86_64` (emulatore).
-- Build locale **1.0.1+18** firmata: `home-security-cam-1.0.1+18-local.apk` (**119.5 MB**, prima 253.7 MB). La +17 è stata eliminata. Non pubblicata su GitHub.
+- Build locale **1.0.1+18** firmata (~120 MB). Pubblicata su GitHub come **v1.0.1-18**. La +17 è stata eliminata.
 
 ## Completato (sessione 2026-08-20, link Agora + flash frontale)
 
 - Schermata App ID (app Android): sotto il campo, link piccolo `www.agora.io` che apre il browser predefinito del sistema (`Intent.ACTION_VIEW`).
 - Visore PC **19e**: stesso link sotto l’App ID (`target=_blank`).
 - Flash con lente frontale: schermo bianco a luminosità massima; spegnendo il flash si torna a Eco o alla UI normale. Posteriore resta il LED. Se il flash è acceso e si cambia lente, passa da LED a schermo (e viceversa).
-- Peso APK: analizzato, nessuna modifica a ABI/plugin. Motivo: librerie native Agora (~99+78+74 MB non compressi per arm64 / armv7 / x86_64) più estensioni non usate (vision, lip-sync, spatial audio, AV1, ecc.).
+- Peso APK: da ~254 MB a ~120 MB togliendo estensioni Agora extra e ABI 32-bit. Restano `arm64-v8a` + `x86_64` e encoder/decoder H.264.
 
 ## Completato (sessione 2026-08-20, luminosità solo Eco/standby)
 
@@ -202,47 +256,33 @@
 - Revisione, blueprint, signing release, privacy, lifecycle, permessi, R8, package `com.bebobbx.home_security_cam`.
 - FGS Android; kiosk dopo join RTC in release Device Owner.
 - Modello gratuito: niente Firebase nel client; schermata App ID; join RTC con token vuoto.
-- GitHub Release **v1.0.1** (codice **obsoleto**, senza griglia/WATCH/batteria/dock/ECO nuovo): https://github.com/Nomeper/home-security-cam/releases/tag/v1.0.1
-- QR Device Owner in `device-owner/provisioning-qr.png` (non usare v1.0.0).
+- GitHub Release **v1.0.1** (codice **obsoleto**): https://github.com/Nomeper/home-security-cam/releases/tag/v1.0.1 — superata da **v1.0.1-18**.
+- QR Device Owner in `device-owner/provisioning-qr.png` (usa **v1.0.1-18**, non v1.0.0 / v1.0.1).
 
 ## In corso
 
-- Installare APK **1.0.1+18** su visore e **tutte** le camere (64-bit).
-- Test: link Agora, flash frontale a schermo, video come prima.
+- Test sul campo di **`home-security-cam-1.0.1+23-local.apk`** (visore + tutte le camere): avvio «Scegli Ruolo», layout picker fisso, background visore, occupancy, cifratura, Eco.
+- Commit/push su `main` delle modifiche locali (cifratura, occupancy, visore 19g, resume visore, picker, avvio ruolo, APK +23, docs). Non è ancora su GitHub.
 
 ## Problemi aperti / da verificare
 
-- [x] Ricostruire APK **1.0.1+18** (estensioni Agora extra e ARM 32-bit rimossi). La +17 è stata eliminata.
-- [ ] Installare `home-security-cam-1.0.1+18-local.apk` su visore e tutte le camere. **Non** installare su telefoni ARM 32-bit.
-- [ ] Verificare streaming: video e audio come prima (encoder H.264 tenuto).
-- [ ] Verificare prima pagina: link piccolo `www.agora.io` sotto l’App ID; apre il browser predefinito (app e visore PC **19e**).
-- [ ] Verificare flash visore con lente **frontale**: schermo CAM tutto bianco, luminosità max; OFF → torna Eco o normale. Posteriore: LED come prima.
-- [ ] Verificare ECO: nero totale subito, niente menu/pallino **dell’app**; visore continua a vedere; doppio tocco esce. Il pallino verde di sistema Android può restare (fotocamera accesa).
-- [ ] Verificare STANDBY: countdown 15→0; poi schermo nero senza menu/orario/testo; tocco fa ripartire i 15 s.
-- [ ] Verificare visore: bottone lente accanto a flash e audio; frontale ↔ posteriore a caldo.
-- [ ] Verificare visore PC **19e**: stesso bottone Post/Front sul chip CAM; link Agora in login.
-- [ ] Verificare CAM in standby: schermo si spegne / si oscura; alla selezione visore si accende subito e trasmette.
-- [ ] Verificare CAM: in attesa visore → STANDBY, fotocamera spenta; visore seleziona → si accende; visore esce → si spegne. Anche in ECO.
-- [ ] Verificare visore: cam landscape → immagine landscape; cam portrait → immagine portrait.
-- [ ] Verificare pallino in alto a destra: verde con dati in transito, rosso senza.
-- [ ] Verificare visore: tap mostra menu e restano; altro tap li nasconde; video sempre a schermo intero.
-- [ ] Verificare CAM: stato e pulsanti sempre visibili, senza toccare lo schermo.
-- [ ] Verificare: visore esce → CAM mostra «IN ATTESA VISORE», non «TRASMISSIONE ATTIVA», video non in rete.
-- [ ] Verificare all’avvio: camera, microfono, notifiche. **Niente** dialogo «dispositivi vicini».
-- [ ] Verificare visore senza cam: barra con esci visibile; tap in mezzo la mostra se nascosta.
-- [ ] Verificare: batteria visibile subito all’apertura visore, senza selezionare la camera.
-- [ ] Verificare: selezione CAM → immagini; CAM mostra «TRASMISSIONE ATTIVA»; flash, audio, lente; «Parla».
-- [ ] Verificare ECO: overlay nero, niente ora/icone; visore continua a vedere; doppio tocco o tasto accensione. Pallino verde di sistema Android possibile mentre il sensore gira.
-- [ ] Verificare visore: batteria solo sotto l’icona cam nel dock, non in alto a sinistra sul video.
+- [ ] Avvio telefono: dopo splash compare **Scegli Ruolo**, non il visore.
+- [ ] Picker: VISORE, CAM e «Controllo chi è già nel canale…» restano **fermi**; il messaggio sparisce senza spostare il resto.
+- [ ] Visore: Home → ritorno in app: batteria cam ancora visibile; cam selezionata si rivede (o un tap la riaccende). Uscire/rientrare da VISORE resta il fallback.
+- [ ] Occupancy picker: bottoni occupati grigi **senza** scritte extra.
+- [ ] Installare `home-security-cam-1.0.1+23-local.apk` su visore e **tutte** le camere (64-bit). Non usare la +22 o precedenti.
+- [ ] Stesso App ID Agora (Testing **senza token**) e stessa chiave di casa (8–62 car.) su telefoni e visore PC **19g**.
+- [ ] Occupancy picker: CAM/VISORE occupati grigi; **dopo uscita da visore** CAM occupata resta grigia; se l’occupante esce dal canale torna selezionabile.
+- [ ] Cifratura: chiave sbagliata → niente video; chiave corretta → streaming e comandi data stream ok.
+- [ ] Visore PC: login, join, griglia CAM, flash/audio/lente, pallino tx verde/rosso.
+- [ ] Eco/STANDBY, flash frontale (schermo bianco), sensore on-demand (`WATCH:`), `BYE` quando il visore esce.
 - [ ] Non usare visore telefono e visore PC insieme (ultimo `WATCH:` vince).
-- [ ] Stesso App ID Agora (progetto Testing **senza token**) su tutti i telefoni e sul PC.
-- [x] Modifiche committate e pushate su `main`.
-- [x] GitHub Release **v1.0.1-18** pubblicata. QR Device Owner aggiornato. Non usare v1.0.0 / v1.0.1.
-- [ ] Recupero kiosk: solo factory reset (nessun backend).
-- [ ] Non usare il QR/APK v1.0.0.
+- [ ] Aggiornare GitHub Release e QR Device Owner (ancora **v1.0.1-18**, senza cifratura).
+- [ ] Commit e push su `main` delle modifiche locali.
 
 ## Prossimi passi
 
-1. Installare [home-security-cam-1.0.1-18.apk](https://github.com/Nomeper/home-security-cam/releases/tag/v1.0.1-18) su visore e **tutte** le camere.
-2. Verificare video, flash frontale, link Agora, Eco/STANDBY.
-3. Eventuale ulteriore taglio `x86_64` **solo se richiesto** (scenderebbe ancora, ma niente emulatore).
+1. Test APK **+23** su dispositivi reali (avvio «Scegli Ruolo», layout picker fisso, visore background, occupancy, cifratura, Eco).
+2. Commit delle modifiche locali su `main` (solo se richiesto).
+3. Opzionale: GitHub Release nuova e QR kiosk (oggi è ancora **v1.0.1-18**).
+

@@ -91,6 +91,16 @@ input:focus {
   color: var(--accent);
 }
 
+.field-note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+label[for="channel-key"] {
+  margin-top: 18px;
+}
+
 .error {
   color: var(--danger);
   margin: 10px 0 0;

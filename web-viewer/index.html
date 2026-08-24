@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Cache-Control" content="no-store">
-  <title>Casa Sicura — Visore PC 19e</title>
+  <title>Casa Sicura — Visore PC 19g</title>
   <style>
     html, body, iframe { margin: 0; height: 100%; width: 100%; border: 0; background: #050505; }
     #banner {
@@ -35,7 +35,7 @@
   </style>
 </head>
 <body>
-    <iframe id="frame" title="Visore" src="viewer.html?v=19e"></iframe>
+    <iframe id="frame" title="Visore" src="viewer.html?v=19g"></iframe>
   <div id="banner">
     Agora non risponde (il join si è bloccato). Premi Riprova.
     <button id="retry" type="button">Riprova</button>
@@ -46,7 +46,7 @@
     let timer;
     function reload() {
       banner.style.display = "none";
-      frame.src = "viewer.html?v=19e&r=" + Date.now();
+      frame.src = "viewer.html?v=19g&r=" + Date.now();
     }
     window.addEventListener("message", (event) => {
       if (event.data === "joining") {

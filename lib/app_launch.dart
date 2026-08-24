@@ -5,13 +5,12 @@ enum AppLaunchRoute { appId, roleSelection, security }
 class AppLaunchDecision {
   static AppLaunchRoute decide({
     required bool hasAppId,
+    required bool hasChannelKey,
     required bool isDeviceOwner,
-    required String? role,
   }) {
-    if (!hasAppId) return AppLaunchRoute.appId;
+    if (!hasAppId || !hasChannelKey) return AppLaunchRoute.appId;
     if (isDeviceOwner) return AppLaunchRoute.security;
-    if (role == null || role.isEmpty) return AppLaunchRoute.roleSelection;
-    return AppLaunchRoute.security;
+    return AppLaunchRoute.roleSelection;
   }
 
   static DeviceRole roleForDeviceOwner() => DeviceRole.camera1;
