@@ -6,8 +6,8 @@
 ## Ultimo aggiornamento: 2026-08-24
 
 - **APK corrente:** `home-security-cam-1.0.1+23-local.apk` (**119.6 MB**, versionCode 23). SHA-256 `3092B36E53C54389959DC9B6544151F869F07CCC228ED99A62CDDEB9D45F6D06`. La +22 è stata eliminata.
-- **Branch:** `main` (allineato a `origin/main` sui commit). **Ultimo commit:** `ce37c61` — Device Owner QR/docs su GitHub Release v1.0.1-18.
-- **Working tree non committato:** cifratura canale, occupancy ruoli, visore PC **19g**, resume visore da background, picker ruoli, avvio su «Scegli Ruolo», APK +23, README/docs. File nuovi: `lib/channel_encryption.dart`, `lib/services/role_occupancy_probe.dart`.
+- **Branch:** `main` (allineato a `origin/main`). **Ultimo commit:** `ea043cd` — cifratura canale, occupancy ruoli, avvio su «Scegli Ruolo».
+- **Working tree:** pulito dopo push. APK **+23** solo locale (gitignored). Release GitHub ancora **v1.0.1-18**.
 - **In questa APK:** avvio sempre su «Scegli Ruolo» (niente ingresso automatico come visore); layout picker fisso; visore in background tiene il canale.
 
 ## Parti da qui (2026-08-24)
@@ -20,7 +20,7 @@
 - Chiave di casa: **8–62 caratteri**, identica su telefoni e PC (non l’App ID).
 - QR kiosk: `device-owner/provisioning-qr.png` punta ancora a **v1.0.1-18** (senza cifratura né fix recenti).
 - Manuale: `docs/Manuale_uso_Casa_Sicura.pdf`.
-- Codice locale **non committato** / **non su GitHub**.
+- Codice **su GitHub** (`main`, `ea043cd`). APK **+23** solo locale (non in Release). QR kiosk ancora **v1.0.1-18**.
 
 ## Panoramica tecnica
 
@@ -54,7 +54,7 @@
 
 - All’apertura dell’app (telefono, non kiosk) la prima pagina è **Scegli Ruolo**: non si entra più da soli come VISORE se quel ruolo era salvato.
 - Picker: bottoni in posizione fissa (griglia CAM 2×3, niente Wrap/scroll). Il messaggio «Controllo chi è già nel canale…» ha uno slot riservato e non sposta VISORE, CAM né «Reimposta».
-- Incluso in APK **+23**; codice **non committato**.
+- Incluso in APK **+23**; su GitHub in `ea043cd`.
 
 ## Completato (sessione 2026-08-22, APK 22)
 
@@ -262,7 +262,7 @@
 ## In corso
 
 - Test sul campo di **`home-security-cam-1.0.1+23-local.apk`** (visore + tutte le camere): avvio «Scegli Ruolo», layout picker fisso, background visore, occupancy, cifratura, Eco.
-- Commit/push su `main` delle modifiche locali (cifratura, occupancy, visore 19g, resume visore, picker, avvio ruolo, APK +23, docs). Non è ancora su GitHub.
+- Opzionale: GitHub Release nuova e QR Device Owner (ancora **v1.0.1-18**, senza cifratura né fix recenti).
 
 ## Problemi aperti / da verificare
 
@@ -278,11 +278,9 @@
 - [ ] Eco/STANDBY, flash frontale (schermo bianco), sensore on-demand (`WATCH:`), `BYE` quando il visore esce.
 - [ ] Non usare visore telefono e visore PC insieme (ultimo `WATCH:` vince).
 - [ ] Aggiornare GitHub Release e QR Device Owner (ancora **v1.0.1-18**, senza cifratura).
-- [ ] Commit e push su `main` delle modifiche locali.
 
 ## Prossimi passi
 
 1. Test APK **+23** su dispositivi reali (avvio «Scegli Ruolo», layout picker fisso, visore background, occupancy, cifratura, Eco).
-2. Commit delle modifiche locali su `main` (solo se richiesto).
-3. Opzionale: GitHub Release nuova e QR kiosk (oggi è ancora **v1.0.1-18**).
+2. Opzionale: GitHub Release nuova e QR kiosk (oggi è ancora **v1.0.1-18**).
 
