@@ -1,6 +1,17 @@
 # Home Security Cam
 
-App Android per usare telefoni come telecamere di casa e un altro telefono (o il PC) come visore. Video in tempo reale via Agora, senza Firebase né backend.
+App Android per **guardare casa in diretta** con telefoni che hai già. I telefoni in casa diventano telecamere; un altro telefono (o il PC) è il visore. Video in tempo reale via Agora, senza Firebase né backend.
+
+## A cosa serve
+
+Usi vecchi (o nuovi) telefoni Android come telecamere di salotto, ingresso o cortile. Dal visore vedi in diretta, accendi il flash, cambi lente e ascolti l’audio. Non è un allarme professionale e non serve comprare telecamere dedicate.
+
+## Come funziona
+
+1. Installa **la stessa app** sul telefono visore e sui telefoni che restano in casa (**CAM 1–6**, fino a sei).
+2. Tutti usano lo **stesso App ID Agora** e la **stessa chiave di casa**.
+3. Sul visore scegli quali CAM guardare: solo quelle accendono la fotocamera.
+4. Puoi guardare anche dal PC. Un visore alla volta: telefono **oppure** computer.
 
 ## Piattaforme
 

@@ -1,6 +1,6 @@
 # Visore PC (web)
 
-Pagina locale per guardare le telecamere Android dal computer. Non è un’app Flutter web: è un visore HTML che usa lo stesso protocollo Agora dell’APK.
+Pagina locale per **guardare casa in diretta** dal computer: i telefoni Android in casa sono le telecamere, questo PC è solo il visore (non usa la webcam). Non è un’app Flutter web: è un visore HTML che usa lo stesso protocollo Agora dell’APK.
 
 ## Cosa fa
 

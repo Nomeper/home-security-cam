@@ -6,7 +6,7 @@
 ## Ultimo aggiornamento: 2026-08-24
 
 - **APK corrente:** Release GitHub **v1.0.1+23** (`home-security-cam-1.0.1-23.apk`, **119.6 MB**, versionCode 23). SHA-256 `3092B36E53C54389959DC9B6544151F869F07CCC228ED99A62CDDEB9D45F6D06`.
-- **Branch:** `main`. Spiegazione Agora (registrazione, API/App ID, 10.000 minuti gratis) aggiunta alle note **v1.0.1+23**, schermata App ID, README, `AGORA_SETUP.md`, visore PC.
+- **Branch:** `main`. Note **v1.0.1+23**: a cosa serve, come funziona, Agora (registrazione, API/App ID, 10.000 minuti gratis). Stesso testo su schermata App ID, README, visore PC.
 - **Note release:** `docs/RELEASE_v1.0.1+23.md`.
 
 ## Parti da qui (2026-08-24)
@@ -45,6 +45,10 @@
 | Backend | Nessuno. Firebase / Cloud Functions non usati |
 | Device Owner | QR kiosk sulla telecamera dedicata; visore = APK sul telefono quotidiano |
 | APK locale / GitHub | Release GitHub **v1.0.1+23** (`home-security-cam-1.0.1-23.apk`, **119.6 MB**). SHA-256 `3092B36E53C54389959DC9B6544151F869F07CCC228ED99A62CDDEB9D45F6D06`. ABI: `arm64-v8a` + `x86_64`. Note: `docs/RELEASE_v1.0.1+23.md`. |
+
+## Completato (sessione 2026-08-25, a cosa serve)
+
+- Note **v1.0.1+23**, schermata App ID, README e visore PC: breve spiegazione di **a cosa serve** (telefoni come telecamere di casa, visore sul telefono o PC) e **come funziona** (stessa app, App ID + chiave, scegli le CAM da accendere).
 
 ## Completato (sessione 2026-08-24, spiegazione Agora)
 

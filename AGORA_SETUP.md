@@ -1,5 +1,7 @@
 # Agora gratis (senza Firebase)
 
+Casa Sicura serve a **guardare casa in diretta**: i telefoni in casa sono le telecamere, un altro telefono o il PC è il visore. Sul visore scegli quali CAM accendere (fino a sei).
+
 Questa app **non ha un server proprio**. Il video in diretta tra telecamere e visore passa da **Agora**. Senza un account Agora e l’**App ID** (il codice API che ti danno), l’app non funziona: visore e telecamere non si vedono.
 
 Visore e telecamera usano lo stesso Agora App ID, la stessa **chiave di casa**, il canale `casa_sicura` e nessun token.

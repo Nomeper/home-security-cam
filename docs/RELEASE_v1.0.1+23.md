@@ -8,6 +8,19 @@ Rispetto alla Release GitHub **v1.0.1-18**. Installare **la stessa APK** sul vis
 
 ---
 
+## A cosa serve
+
+Casa Sicura è un’app per **guardare casa in diretta** con telefoni che hai già. I telefoni in casa diventano telecamere; un altro telefono (o il PC) è il **visore**. Non è un allarme professionale e non serve comprare telecamere dedicate: vedi salotto, ingresso o cortile dal telefono che tieni con te.
+
+## Come funziona (in breve)
+
+1. Installi **la stessa app** sul telefono visore e sui telefoni che restano in casa (**CAM 1–6**, fino a sei).
+2. Tutti usano lo **stesso App ID Agora** e la **stessa chiave di casa**.
+3. Sul visore scegli quali CAM guardare: **solo quelle** accendono la fotocamera. Da lì puoi anche accendere il flash, cambiare lente e ascoltare l’audio.
+4. Puoi guardare anche dal **PC**. Un visore alla volta: telefono **oppure** computer.
+
+---
+
 ## Serve Agora, altrimenti l’app non parte
 
 Questa app **non ha un server proprio**. Il video in diretta tra le telecamere e il visore passa da **Agora**, un servizio di streaming su internet ([www.agora.io](https://www.agora.io/)).

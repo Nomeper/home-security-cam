@@ -122,6 +122,10 @@ class _AppIdInputScreenState extends State<AppIdInputScreen> {
               ),
               const SizedBox(height: 10),
               Text(
+                'Casa Sicura usa telefoni Android come telecamere di casa. '
+                'Un telefono (o il PC) è il visore: da lì vedi in diretta e '
+                'scegli quali CAM accendere (fino a sei). Non è un allarme '
+                'professionale: serve a guardare salotto, ingresso o cortile.\n\n'
                 'Questa app ha bisogno di Agora per funzionare: non ha un server '
                 'proprio, il video passa da agora.io. Registrati (gratis), crea '
                 'un progetto di test e incolla qui l’App ID (è il codice API che '
